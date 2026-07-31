@@ -12,7 +12,8 @@ const testimonials = [
   {
     name: "Sarah Mitchell",
     role: "Campaign Creator",
-    photo: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+    photo:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
     quote:
       "KINETIX helped me raise over 15,000 credits for my solar energy project in just 3 weeks. The platform is intuitive and the supporter community is incredibly generous.",
     rating: 5,
@@ -20,7 +21,8 @@ const testimonials = [
   {
     name: "James Rodriguez",
     role: "Supporter",
-    photo: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    photo:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
     quote:
       "I have backed 12 campaigns so far and every single one delivered on their promises. The transparency and trust built into KINETIX makes contributing feel safe and rewarding.",
     rating: 5,
@@ -28,7 +30,8 @@ const testimonials = [
   {
     name: "Priya Sharma",
     role: "Campaign Creator",
-    photo: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    photo:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
     quote:
       "From idea to fully funded in under a month — KINETIX gave me the platform and the community to make my documentary dream a reality. Could not recommend it more.",
     rating: 5,
@@ -36,7 +39,8 @@ const testimonials = [
   {
     name: "Alex Chen",
     role: "Supporter",
-    photo: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    photo:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
     quote:
       "The credit system is brilliant. I can support multiple projects without worrying about complex payment processes. Simple, elegant, and effective — that is KINETIX.",
     rating: 5,
@@ -44,7 +48,8 @@ const testimonials = [
   {
     name: "Fatima Al-Rashid",
     role: "Campaign Creator",
-    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
+    photo:
+      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
     quote:
       "My health awareness campaign exceeded its goal by 200 percent thanks to KINETIX. The notification system kept my supporters engaged throughout the entire journey.",
     rating: 5,
@@ -53,77 +58,27 @@ const testimonials = [
 
 export default function Testimonials() {
   return (
-    <section
-      className="section-padding"
-      style={{
-        position: "relative",
-        background: "linear-gradient(180deg, var(--color-background) 0%, rgba(15, 23, 42, 0.5) 50%, var(--color-background) 100%)",
-      }}
-    >
-      {/* Background accent */}
-      <div
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          width: "600px",
-          height: "600px",
-          borderRadius: "50%",
-          background: "radial-gradient(circle, rgba(59, 130, 246, 0.05), transparent 70%)",
-          pointerEvents: "none",
-        }}
-      />
-
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px", position: "relative" }}>
+    <section className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
+          className="text-center mb-16"
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "50px",
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.15)",
-              color: "#60a5fa",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              marginBottom: "20px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-5">
             <HiOutlineChatBubbleLeftRight size={14} />
-            Testimonials
+            <span>Testimonials</span>
           </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginBottom: "16px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Loved by <span className="gradient-text">Thousands</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            Loved by{" "}
+            <span className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
+              Thousands
+            </span>
           </h2>
-          <p
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "1.05rem",
-              maxWidth: "500px",
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}
-          >
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
             Hear from creators and supporters who have transformed their ideas
             into reality through our platform.
           </p>
@@ -147,7 +102,7 @@ export default function Testimonials() {
               768: { slidesPerView: 2 },
               1024: { slidesPerView: 3 },
             }}
-            style={{ paddingBottom: "50px" }}
+            className="pb-12"
           >
             {testimonials.map((t, index) => (
               <SwiperSlide key={index}>
@@ -163,71 +118,35 @@ export default function Testimonials() {
 
 function TestimonialCard({ testimonial }) {
   return (
-    <div
-      className="glass-card"
-      style={{
-        borderRadius: "16px",
-        padding: "28px",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
+    <div className="h-full flex flex-col rounded-2xl p-7 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300">
       {/* Stars */}
-      <div style={{ display: "flex", gap: "4px", marginBottom: "16px" }}>
+      <div className="flex gap-1 mb-4">
         {Array.from({ length: testimonial.rating }).map((_, i) => (
           <FiStar
             key={i}
             size={16}
-            style={{ fill: "#f59e0b", color: "#f59e0b" }}
+            className="fill-amber-400 text-amber-400"
           />
         ))}
       </div>
 
       {/* Quote */}
-      <p
-        style={{
-          color: "var(--color-text-secondary)",
-          fontSize: "0.92rem",
-          lineHeight: 1.7,
-          flex: 1,
-          marginBottom: "24px",
-          fontStyle: "italic",
-        }}
-      >
+      <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed flex-1 italic mb-6">
         &ldquo;{testimonial.quote}&rdquo;
       </p>
 
       {/* Author */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+      <div className="flex items-center gap-3">
         <img
           src={testimonial.photo}
           alt={testimonial.name}
-          style={{
-            width: "44px",
-            height: "44px",
-            borderRadius: "12px",
-            objectFit: "cover",
-            border: "2px solid rgba(59, 130, 246, 0.2)",
-          }}
+          className="w-11 h-11 rounded-xl object-cover border-2 border-blue-200 dark:border-blue-900 shrink-0"
         />
         <div>
-          <p
-            style={{
-              color: "var(--color-text-primary)",
-              fontWeight: 600,
-              fontSize: "0.9rem",
-            }}
-          >
+          <p className="text-slate-900 dark:text-white font-semibold text-sm">
             {testimonial.name}
           </p>
-          <p
-            style={{
-              color: "#60a5fa",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-            }}
-          >
+          <p className="text-blue-600 dark:text-blue-400 text-xs font-medium">
             {testimonial.role}
           </p>
         </div>

@@ -15,96 +15,27 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer
-      style={{
-        background: "linear-gradient(180deg, var(--color-background) 0%, #0a1020 100%)",
-        borderTop: "1px solid var(--color-border)",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Top glow effect */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: "600px",
-          height: "1px",
-          background: "linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent)",
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-          padding: "60px 24px 30px",
-        }}
-      >
+    <footer className="relative bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 transition-colors duration-300 overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
         {/* Main Footer Content */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "48px",
-            marginBottom: "48px",
-          }}
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand Column */}
           <div>
-            <Link
-              href="/"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                textDecoration: "none",
-                marginBottom: "16px",
-              }}
-            >
-              <div
-                style={{
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "12px",
-                  background: "linear-gradient(135deg, #3b82f6, #06b6d4)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "20px",
-                }}
-              >
-                <HiOutlineRocketLaunch color="white" />
+            <Link href="/" className="flex items-center gap-2.5 no-underline mb-4">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-xl text-white shadow-sm shrink-0">
+                <HiOutlineRocketLaunch color="white" size={22} />
               </div>
-              <span
-                className="gradient-text"
-                style={{ fontSize: "1.3rem", fontWeight: 700, letterSpacing: "-0.5px" }}
-              >
+              <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
                 KINETIX
               </span>
             </Link>
-            <p
-              style={{
-                color: "var(--color-text-secondary)",
-                fontSize: "0.9rem",
-                lineHeight: 1.7,
-                maxWidth: "300px",
-              }}
-            >
+            <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed max-w-xs">
               Empowering creators and innovators to bring their ideas to life
               through community-powered crowdfunding.
             </p>
 
             {/* Social Icons */}
-            <div
-              style={{
-                display: "flex",
-                gap: "12px",
-                marginTop: "24px",
-              }}
-            >
+            <div className="flex gap-3 mt-6">
               <SocialIcon href="https://linkedin.com" icon={<FiLinkedin size={18} />} />
               <SocialIcon href="https://github.com" icon={<FiGithub size={18} />} />
               <SocialIcon href="https://facebook.com" icon={<FiFacebook size={18} />} />
@@ -114,19 +45,10 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4
-              style={{
-                color: "var(--color-text-primary)",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                marginBottom: "20px",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-              }}
-            >
+            <h4 className="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider mb-5">
               Quick Links
             </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-3">
               <FooterLink href="/" label="Home" />
               <FooterLink href="/campaigns" label="Explore Campaigns" />
               <FooterLink href="/register" label="Start a Campaign" />
@@ -136,19 +58,10 @@ export default function Footer() {
 
           {/* For Creators */}
           <div>
-            <h4
-              style={{
-                color: "var(--color-text-primary)",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                marginBottom: "20px",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-              }}
-            >
+            <h4 className="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider mb-5">
               For Creators
             </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-3">
               <FooterLink href="/register" label="Launch Your Campaign" />
               <FooterLink href="#how-it-works" label="How It Works" />
               <FooterLink href="#categories" label="Campaign Categories" />
@@ -158,38 +71,15 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4
-              style={{
-                color: "var(--color-text-primary)",
-                fontSize: "0.95rem",
-                fontWeight: 600,
-                marginBottom: "20px",
-                letterSpacing: "0.5px",
-                textTransform: "uppercase",
-              }}
-            >
+            <h4 className="text-slate-900 dark:text-white text-xs font-bold uppercase tracking-wider mb-5">
               Get in Touch
             </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "10px",
-                  color: "var(--color-text-secondary)",
-                  fontSize: "0.9rem",
-                }}
-              >
-                <FiMail size={16} style={{ color: "var(--color-primary-light)" }} />
-                support@kinetix.com
+            <div className="flex flex-col gap-3.5">
+              <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 text-sm">
+                <FiMail size={16} className="text-blue-500" />
+                <span>support@kinetix.com</span>
               </div>
-              <p
-                style={{
-                  color: "var(--color-text-secondary)",
-                  fontSize: "0.85rem",
-                  lineHeight: 1.6,
-                }}
-              >
+              <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
                 Have a question or need help? We are here for you 24/7.
               </p>
             </div>
@@ -197,42 +87,17 @@ export default function Footer() {
         </div>
 
         {/* Divider */}
-        <div
-          style={{
-            height: "1px",
-            background: "linear-gradient(90deg, transparent, var(--color-border-light), transparent)",
-            marginBottom: "24px",
-          }}
-        />
+        <div className="h-px bg-slate-200 dark:bg-slate-800 mb-6" />
 
         {/* Bottom Bar */}
-        <div
-          style={{
-            display: "flex",
-            flexWrap: "wrap",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          <p
-            style={{
-              color: "var(--color-text-muted)",
-              fontSize: "0.85rem",
-            }}
-          >
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-slate-500 dark:text-slate-400 text-xs">
             © {currentYear} KINETIX. All rights reserved.
           </p>
-          <p
-            style={{
-              color: "var(--color-text-muted)",
-              fontSize: "0.85rem",
-              display: "flex",
-              alignItems: "center",
-              gap: "4px",
-            }}
-          >
-            Built with <FiHeart size={14} style={{ color: "#ef4444" }} /> by Rahat
+          <p className="text-slate-500 dark:text-slate-400 text-xs flex items-center gap-1">
+            <span>Built with</span>
+            <FiHeart size={14} className="text-rose-500 fill-rose-500" />
+            <span>by Rahat</span>
           </p>
         </div>
       </div>
@@ -246,31 +111,7 @@ function SocialIcon({ href, icon }) {
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      style={{
-        width: "40px",
-        height: "40px",
-        borderRadius: "10px",
-        background: "rgba(59, 130, 246, 0.08)",
-        border: "1px solid rgba(59, 130, 246, 0.15)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "var(--color-text-secondary)",
-        transition: "all 0.3s ease",
-        textDecoration: "none",
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = "rgba(59, 130, 246, 0.15)";
-        e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.3)";
-        e.currentTarget.style.color = "#60a5fa";
-        e.currentTarget.style.transform = "translateY(-2px)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = "rgba(59, 130, 246, 0.08)";
-        e.currentTarget.style.borderColor = "rgba(59, 130, 246, 0.15)";
-        e.currentTarget.style.color = "var(--color-text-secondary)";
-        e.currentTarget.style.transform = "translateY(0)";
-      }}
+      className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-700 transition duration-200 no-underline hover:-translate-y-0.5"
     >
       {icon}
     </a>
@@ -281,20 +122,7 @@ function FooterLink({ href, label }) {
   return (
     <Link
       href={href}
-      style={{
-        color: "var(--color-text-secondary)",
-        textDecoration: "none",
-        fontSize: "0.9rem",
-        transition: "all 0.2s ease",
-      }}
-      onMouseEnter={(e) => {
-        e.target.style.color = "#60a5fa";
-        e.target.style.paddingLeft = "4px";
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.color = "var(--color-text-secondary)";
-        e.target.style.paddingLeft = "0";
-      }}
+      className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 text-sm transition-all duration-200 no-underline hover:translate-x-1"
     >
       {label}
     </Link>

@@ -16,9 +16,9 @@ const stats = [
     value: 2840,
     suffix: "+",
     label: "Campaigns Funded",
-    color: "#3b82f6",
-    bg: "rgba(59, 130, 246, 0.1)",
-    border: "rgba(59, 130, 246, 0.2)",
+    colorClass: "text-blue-500 dark:text-blue-400",
+    bgClass: "bg-blue-50 dark:bg-slate-900",
+    borderClass: "border-blue-200 dark:border-blue-800",
   },
   {
     icon: <FiDollarSign size={28} />,
@@ -26,9 +26,9 @@ const stats = [
     suffix: "",
     prefix: "",
     label: "Credits Raised",
-    color: "#06b6d4",
-    bg: "rgba(6, 182, 212, 0.1)",
-    border: "rgba(6, 182, 212, 0.2)",
+    colorClass: "text-cyan-500 dark:text-cyan-400",
+    bgClass: "bg-cyan-50 dark:bg-slate-900",
+    borderClass: "border-cyan-200 dark:border-cyan-800",
     format: true,
   },
   {
@@ -36,18 +36,18 @@ const stats = [
     value: 45000,
     suffix: "+",
     label: "Active Supporters",
-    color: "#8b5cf6",
-    bg: "rgba(139, 92, 246, 0.1)",
-    border: "rgba(139, 92, 246, 0.2)",
+    colorClass: "text-purple-500 dark:text-purple-400",
+    bgClass: "bg-purple-50 dark:bg-slate-900",
+    borderClass: "border-purple-200 dark:border-purple-800",
   },
   {
     icon: <FiTrendingUp size={28} />,
     value: 94,
     suffix: "%",
     label: "Success Rate",
-    color: "#10b981",
-    bg: "rgba(16, 185, 129, 0.1)",
-    border: "rgba(16, 185, 129, 0.2)",
+    colorClass: "text-emerald-500 dark:text-emerald-400",
+    bgClass: "bg-emerald-50 dark:bg-slate-900",
+    borderClass: "border-emerald-200 dark:border-emerald-800",
   },
 ];
 
@@ -57,7 +57,6 @@ function useCountUp(target, duration = 2000, shouldStart = false) {
   useEffect(() => {
     if (!shouldStart) return;
 
-    let start = 0;
     const startTime = performance.now();
 
     function animate(currentTime) {
@@ -86,58 +85,17 @@ function StatCard({ stat, isVisible }) {
     : count.toLocaleString();
 
   return (
-    <div
-      className="glass-card"
-      style={{
-        borderRadius: "16px",
-        padding: "32px 28px",
-        textAlign: "center",
-        position: "relative",
-        overflow: "hidden",
-      }}
-    >
-      {/* Background accent */}
-      <div
-        style={{
-          position: "absolute",
-          top: "-30px",
-          right: "-30px",
-          width: "120px",
-          height: "120px",
-          borderRadius: "50%",
-          background: `radial-gradient(circle, ${stat.bg}, transparent 70%)`,
-          pointerEvents: "none",
-        }}
-      />
-
+    <div className="h-full relative overflow-hidden rounded-2xl p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
       {/* Icon */}
       <div
-        style={{
-          width: "56px",
-          height: "56px",
-          borderRadius: "14px",
-          background: stat.bg,
-          border: `1px solid ${stat.border}`,
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: stat.color,
-          marginBottom: "20px",
-        }}
+        className={`w-14 h-14 rounded-2xl ${stat.bgClass} border ${stat.borderClass} inline-flex items-center justify-center ${stat.colorClass} mb-5`}
       >
         {stat.icon}
       </div>
 
       {/* Value */}
       <div
-        style={{
-          fontSize: "2.4rem",
-          fontWeight: 800,
-          color: stat.color,
-          lineHeight: 1.1,
-          marginBottom: "8px",
-          letterSpacing: "-1px",
-        }}
+        className={`text-3xl sm:text-4xl font-extrabold tracking-tight ${stat.colorClass} leading-none mb-2`}
       >
         {stat.prefix || ""}
         {displayValue}
@@ -145,13 +103,7 @@ function StatCard({ stat, isVisible }) {
       </div>
 
       {/* Label */}
-      <p
-        style={{
-          color: "var(--color-text-secondary)",
-          fontSize: "0.9rem",
-          fontWeight: 500,
-        }}
-      >
+      <p className="text-slate-600 dark:text-slate-300 text-sm font-medium">
         {stat.label}
       </p>
     </div>
@@ -183,80 +135,28 @@ export default function PlatformImpact() {
   return (
     <section
       ref={sectionRef}
-      className="section-padding"
-      style={{
-        position: "relative",
-        background:
-          "linear-gradient(180deg, var(--color-background) 0%, rgba(15, 23, 42, 0.5) 50%, var(--color-background) 100%)",
-      }}
+      className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300"
     >
-      {/* Grid background */}
-      <div
-        className="bg-grid"
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.3,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-          padding: "0 24px",
-          position: "relative",
-        }}
-      >
+      <div className="max-w-7xl mx-auto px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
+          className="text-center mb-16"
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "50px",
-              background: "rgba(16, 185, 129, 0.1)",
-              border: "1px solid rgba(16, 185, 129, 0.15)",
-              color: "#34d399",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              marginBottom: "20px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-slate-800 border border-emerald-200 dark:border-slate-700 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-wider mb-5">
             <HiOutlineChartBar size={14} />
-            Our Impact
+            <span>Our Impact</span>
           </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginBottom: "16px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Platform Impact <span className="gradient-text">in Numbers</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            Platform Impact{" "}
+            <span className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
+              in Numbers
+            </span>
           </h2>
-          <p
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "1.05rem",
-              maxWidth: "520px",
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}
-          >
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             Real results from a real community. See how KINETIX is changing the
             way ideas get funded.
           </p>
@@ -268,11 +168,7 @@ export default function PlatformImpact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
-            gap: "24px",
-          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {stats.map((stat, index) => (
             <StatCard key={index} stat={stat} isVisible={isVisible} />

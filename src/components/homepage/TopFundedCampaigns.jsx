@@ -8,7 +8,8 @@ const campaigns = [
   {
     id: 1,
     title: "Solar-Powered Water Purifier for Rural Communities",
-    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=250&fit=crop",
     raised: 12500,
     goal: 15000,
     category: "Technology",
@@ -16,7 +17,8 @@ const campaigns = [
   {
     id: 2,
     title: "Independent Documentary: Voices of the Ocean",
-    image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=250&fit=crop",
     raised: 8900,
     goal: 10000,
     category: "Art",
@@ -24,7 +26,8 @@ const campaigns = [
   {
     id: 3,
     title: "Community Garden Initiative — Growing Together",
-    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop",
     raised: 7200,
     goal: 8000,
     category: "Community",
@@ -32,7 +35,8 @@ const campaigns = [
   {
     id: 4,
     title: "AI-Powered Mental Health Companion App",
-    image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=250&fit=crop",
     raised: 18300,
     goal: 20000,
     category: "Health",
@@ -40,7 +44,8 @@ const campaigns = [
   {
     id: 5,
     title: "Portable Wind Turbine for Off-Grid Adventures",
-    image: "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=400&h=250&fit=crop",
     raised: 5600,
     goal: 12000,
     category: "Technology",
@@ -48,7 +53,8 @@ const campaigns = [
   {
     id: 6,
     title: "Street Art Festival — Colors of Unity",
-    image: "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400&h=250&fit=crop",
+    image:
+      "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400&h=250&fit=crop",
     raised: 4100,
     goal: 5000,
     category: "Art",
@@ -73,59 +79,27 @@ const cardVariants = {
 
 export default function TopFundedCampaigns() {
   return (
-    <section
-      className="section-padding bg-radial-blue"
-      style={{ position: "relative" }}
-    >
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
+    <section className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
+          className="text-center mb-16"
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "50px",
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.15)",
-              color: "#60a5fa",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              marginBottom: "20px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-5">
             <FiTrendingUp size={14} />
-            Trending Now
+            <span>Trending Now</span>
           </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginBottom: "16px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Top Funded <span className="gradient-text">Campaigns</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            Top Funded{" "}
+            <span className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
+              Campaigns
+            </span>
           </h2>
-          <p
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "1.05rem",
-              maxWidth: "550px",
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}
-          >
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             Discover the campaigns making the biggest impact right now. These
             projects are leading the way in community support.
           </p>
@@ -137,11 +111,7 @@ export default function TopFundedCampaigns() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))",
-            gap: "24px",
-          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {campaigns.map((campaign) => (
             <motion.div key={campaign.id} variants={cardVariants}>
@@ -156,10 +126,13 @@ export default function TopFundedCampaigns() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5 }}
-          style={{ textAlign: "center", marginTop: "48px" }}
+          className="text-center mt-12"
         >
-          <Link href="/campaigns" className="btn-outline">
-            View All Campaigns
+          <Link
+            href="/campaigns"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-slate-800 font-semibold no-underline transition shadow-xs active:scale-95"
+          >
+            <span>View All Campaigns</span>
             <FiArrowRight size={16} />
           </Link>
         </motion.div>
@@ -172,110 +145,52 @@ function CampaignCard({ campaign }) {
   const progress = Math.round((campaign.raised / campaign.goal) * 100);
 
   return (
-    <div
-      className="glass-card"
-      style={{
-        borderRadius: "16px",
-        overflow: "hidden",
-        cursor: "pointer",
-      }}
-    >
+    <div className="h-full rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
       {/* Image */}
-      <div style={{ position: "relative", overflow: "hidden" }}>
+      <div className="relative overflow-hidden h-48 w-full">
         <img
           src={campaign.image}
           alt={campaign.title}
-          style={{
-            width: "100%",
-            height: "200px",
-            objectFit: "cover",
-            transition: "transform 0.4s ease",
-          }}
-          onMouseEnter={(e) => (e.target.style.transform = "scale(1.05)")}
-          onMouseLeave={(e) => (e.target.style.transform = "scale(1)")}
+          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
         />
         {/* Category Badge */}
-        <span
-          style={{
-            position: "absolute",
-            top: "12px",
-            right: "12px",
-            padding: "4px 12px",
-            borderRadius: "20px",
-            background: "rgba(6, 11, 24, 0.7)",
-            backdropFilter: "blur(8px)",
-            color: "#60a5fa",
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            border: "1px solid rgba(59, 130, 246, 0.2)",
-          }}
-        >
+        <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900 text-blue-400 text-xs font-semibold border border-slate-700">
           {campaign.category}
         </span>
       </div>
 
       {/* Content */}
-      <div style={{ padding: "20px" }}>
-        <h3
-          style={{
-            color: "var(--color-text-primary)",
-            fontSize: "1.05rem",
-            fontWeight: 600,
-            marginBottom: "16px",
-            lineHeight: 1.4,
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}
-        >
-          {campaign.title}
-        </h3>
+      <div className="p-6 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-slate-900 dark:text-white font-bold text-base mb-4 line-clamp-2 leading-snug">
+            {campaign.title}
+          </h3>
 
-        {/* Progress Bar */}
-        <div className="progress-bar" style={{ marginBottom: "12px" }}>
-          <div className="progress-fill" style={{ width: `${progress}%` }} />
+          {/* Progress Bar */}
+          <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mb-3">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-1000"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
 
         {/* Stats */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
+        <div className="flex items-center justify-between mt-2">
           <div>
-            <p
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                color: "#60a5fa",
-              }}
-            >
+            <p className="text-base font-extrabold text-blue-600 dark:text-blue-400">
               {campaign.raised.toLocaleString()} credits
             </p>
-            <p
-              style={{
-                fontSize: "0.78rem",
-                color: "var(--color-text-muted)",
-              }}
-            >
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               of {campaign.goal.toLocaleString()} goal
             </p>
           </div>
           <div
-            style={{
-              padding: "6px 14px",
-              borderRadius: "20px",
-              background:
-                progress >= 75
-                  ? "rgba(16, 185, 129, 0.12)"
-                  : "rgba(59, 130, 246, 0.12)",
-              color: progress >= 75 ? "#10b981" : "#60a5fa",
-              fontSize: "0.85rem",
-              fontWeight: 600,
-            }}
+            className={`px-3 py-1 rounded-full text-xs font-bold ${
+              progress >= 75
+                ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400"
+                : "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
+            }`}
           >
             {progress}%
           </div>

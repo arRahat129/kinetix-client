@@ -2,53 +2,48 @@
 
 import { motion } from "framer-motion";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
-import {
-  FiCpu,
-  FiFeather,
-  FiUsers,
-  FiHeart,
-} from "react-icons/fi";
+import { FiCpu, FiFeather, FiUsers, FiHeart } from "react-icons/fi";
 
 const categories = [
   {
     name: "Technology",
-    description: "Innovative gadgets, software, AI projects, and engineering marvels pushing the boundaries of what is possible.",
+    description:
+      "Innovative gadgets, software, AI projects, and engineering marvels pushing the boundaries of what is possible.",
     icon: <FiCpu size={32} />,
     count: 124,
-    gradient: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-    bg: "rgba(59, 130, 246, 0.08)",
-    border: "rgba(59, 130, 246, 0.15)",
-    hoverBorder: "rgba(59, 130, 246, 0.4)",
+    gradient: "from-blue-600 to-blue-800",
+    bgClass: "bg-blue-50 dark:bg-slate-900",
+    borderHover: "hover:border-blue-500",
   },
   {
     name: "Art",
-    description: "Films, music, design, illustration, and creative expressions that inspire and captivate audiences worldwide.",
+    description:
+      "Films, music, design, illustration, and creative expressions that inspire and captivate audiences worldwide.",
     icon: <FiFeather size={32} />,
     count: 89,
-    gradient: "linear-gradient(135deg, #8b5cf6, #6d28d9)",
-    bg: "rgba(139, 92, 246, 0.08)",
-    border: "rgba(139, 92, 246, 0.15)",
-    hoverBorder: "rgba(139, 92, 246, 0.4)",
+    gradient: "from-purple-600 to-purple-800",
+    bgClass: "bg-purple-50 dark:bg-slate-900",
+    borderHover: "hover:border-purple-500",
   },
   {
     name: "Community",
-    description: "Local initiatives, environmental projects, education programs, and social causes that bring people together.",
+    description:
+      "Local initiatives, environmental projects, education programs, and social causes that bring people together.",
     icon: <FiUsers size={32} />,
     count: 67,
-    gradient: "linear-gradient(135deg, #06b6d4, #0891b2)",
-    bg: "rgba(6, 182, 212, 0.08)",
-    border: "rgba(6, 182, 212, 0.15)",
-    hoverBorder: "rgba(6, 182, 212, 0.4)",
+    gradient: "from-cyan-600 to-cyan-800",
+    bgClass: "bg-cyan-50 dark:bg-slate-900",
+    borderHover: "hover:border-cyan-500",
   },
   {
     name: "Health",
-    description: "Medical research, wellness apps, mental health tools, and healthcare innovations improving lives globally.",
+    description:
+      "Medical research, wellness apps, mental health tools, and healthcare innovations improving lives globally.",
     icon: <FiHeart size={32} />,
     count: 53,
-    gradient: "linear-gradient(135deg, #10b981, #059669)",
-    bg: "rgba(16, 185, 129, 0.08)",
-    border: "rgba(16, 185, 129, 0.15)",
-    hoverBorder: "rgba(16, 185, 129, 0.4)",
+    gradient: "from-emerald-600 to-emerald-800",
+    bgClass: "bg-emerald-50 dark:bg-slate-900",
+    borderHover: "hover:border-emerald-500",
   },
 ];
 
@@ -72,58 +67,28 @@ export default function ExploreByCategory() {
   return (
     <section
       id="categories"
-      className="section-padding bg-radial-cyan"
-      style={{ position: "relative" }}
+      className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300"
     >
-      <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "0 24px" }}>
+      <div className="max-w-7xl mx-auto px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
+          className="text-center mb-16"
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "50px",
-              background: "rgba(6, 182, 212, 0.1)",
-              border: "1px solid rgba(6, 182, 212, 0.15)",
-              color: "#22d3ee",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              marginBottom: "20px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-50 dark:bg-slate-800 border border-cyan-200 dark:border-slate-700 text-cyan-600 dark:text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-5">
             <HiOutlineSquares2X2 size={14} />
-            Browse Categories
+            <span>Browse Categories</span>
           </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginBottom: "16px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            Explore by <span className="gradient-text">Category</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            Explore by{" "}
+            <span className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
+              Category
+            </span>
           </h2>
-          <p
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "1.05rem",
-              maxWidth: "520px",
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}
-          >
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
             Find campaigns that match your passions. From cutting-edge tech to
             heartfelt community projects.
           </p>
@@ -135,97 +100,32 @@ export default function ExploreByCategory() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))",
-            gap: "24px",
-          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {categories.map((cat, index) => (
             <motion.div key={index} variants={cardVariants}>
               <div
-                className="glass-card"
-                style={{
-                  borderRadius: "16px",
-                  padding: "32px 28px",
-                  cursor: "pointer",
-                  height: "100%",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = cat.hoverBorder;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = "var(--color-border)";
-                }}
+                className={`h-full relative overflow-hidden rounded-2xl p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm ${cat.borderHover} transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
               >
-                {/* Background gradient on hover */}
-                <div
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    right: 0,
-                    width: "200px",
-                    height: "200px",
-                    background: `radial-gradient(circle, ${cat.bg}, transparent 70%)`,
-                    pointerEvents: "none",
-                  }}
-                />
-
                 {/* Icon */}
                 <div
-                  style={{
-                    width: "64px",
-                    height: "64px",
-                    borderRadius: "16px",
-                    background: cat.gradient,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "white",
-                    marginBottom: "20px",
-                    position: "relative",
-                  }}
+                  className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center text-white mb-5 shadow-md`}
                 >
                   {cat.icon}
                 </div>
 
                 {/* Title */}
-                <h3
-                  style={{
-                    color: "var(--color-text-primary)",
-                    fontSize: "1.2rem",
-                    fontWeight: 700,
-                    marginBottom: "10px",
-                    position: "relative",
-                  }}
-                >
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2.5">
                   {cat.name}
                 </h3>
 
                 {/* Description */}
-                <p
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    fontSize: "0.88rem",
-                    lineHeight: 1.7,
-                    marginBottom: "16px",
-                    position: "relative",
-                  }}
-                >
+                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed mb-4">
                   {cat.description}
                 </p>
 
                 {/* Count */}
-                <span
-                  style={{
-                    color: "var(--color-text-muted)",
-                    fontSize: "0.82rem",
-                    fontWeight: 500,
-                    position: "relative",
-                  }}
-                >
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   {cat.count} active campaigns
                 </span>
               </div>

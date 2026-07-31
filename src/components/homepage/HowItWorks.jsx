@@ -17,9 +17,9 @@ const steps = [
     title: "Create Your Account",
     description:
       "Sign up as a Supporter to back campaigns or as a Creator to launch your own. Get free starting credits upon registration.",
-    color: "#3b82f6",
-    bg: "rgba(59, 130, 246, 0.1)",
-    border: "rgba(59, 130, 246, 0.2)",
+    iconColor: "text-blue-500 dark:text-blue-400",
+    bgClass: "bg-blue-50 dark:bg-blue-950",
+    borderClass: "border-blue-200 dark:border-blue-800",
   },
   {
     icon: <FiSearch size={28} />,
@@ -27,9 +27,9 @@ const steps = [
     title: "Discover or Launch",
     description:
       "Browse trending campaigns across Technology, Art, Health, and Community — or create your own campaign and share your vision with the world.",
-    color: "#8b5cf6",
-    bg: "rgba(139, 92, 246, 0.1)",
-    border: "rgba(139, 92, 246, 0.2)",
+    iconColor: "text-purple-500 dark:text-purple-400",
+    bgClass: "bg-purple-50 dark:bg-purple-950",
+    borderClass: "border-purple-200 dark:border-purple-800",
   },
   {
     icon: <FiHeart size={28} />,
@@ -37,9 +37,9 @@ const steps = [
     title: "Contribute Credits",
     description:
       "Use your credits to support campaigns you believe in. Every contribution brings a creator closer to their goal and makes a real impact.",
-    color: "#06b6d4",
-    bg: "rgba(6, 182, 212, 0.1)",
-    border: "rgba(6, 182, 212, 0.2)",
+    iconColor: "text-cyan-500 dark:text-cyan-400",
+    bgClass: "bg-cyan-50 dark:bg-cyan-950",
+    borderClass: "border-cyan-200 dark:border-cyan-800",
   },
   {
     icon: <FiAward size={28} />,
@@ -47,9 +47,9 @@ const steps = [
     title: "Achieve the Goal",
     description:
       "Once fully funded, creators bring their vision to life. Supporters receive exclusive rewards and the satisfaction of making a difference.",
-    color: "#10b981",
-    bg: "rgba(16, 185, 129, 0.1)",
-    border: "rgba(16, 185, 129, 0.2)",
+    iconColor: "text-emerald-500 dark:text-emerald-400",
+    bgClass: "bg-emerald-50 dark:bg-emerald-950",
+    borderClass: "border-emerald-200 dark:border-emerald-800",
   },
 ];
 
@@ -73,81 +73,30 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="section-padding"
-      style={{
-        position: "relative",
-        background: "var(--color-background)",
-      }}
+      className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300"
     >
-      {/* Subtle grid */}
-      <div
-        className="bg-grid"
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.4,
-        }}
-      />
-
-      <div
-        style={{
-          maxWidth: "1280px",
-          margin: "0 auto",
-          padding: "0 24px",
-          position: "relative",
-        }}
-      >
+      <div className="max-w-7xl mx-auto px-6 relative">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.6 }}
-          style={{ textAlign: "center", marginBottom: "60px" }}
+          className="text-center mb-16"
         >
-          <div
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "6px 16px",
-              borderRadius: "50px",
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "1px solid rgba(59, 130, 246, 0.15)",
-              color: "#60a5fa",
-              fontSize: "0.8rem",
-              fontWeight: 500,
-              marginBottom: "20px",
-              textTransform: "uppercase",
-              letterSpacing: "1px",
-            }}
-          >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-xs font-semibold uppercase tracking-wider mb-5">
             <HiOutlineLightBulb size={14} />
-            Simple Process
+            <span>Simple Process</span>
           </div>
-          <h2
-            style={{
-              fontSize: "clamp(1.8rem, 3.5vw, 2.8rem)",
-              fontWeight: 800,
-              color: "var(--color-text-primary)",
-              marginBottom: "16px",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            How <span className="gradient-text">It Works</span>
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
+            How{" "}
+            <span className="bg-gradient-to-r from-blue-500 via-cyan-500 to-indigo-500 bg-clip-text text-transparent">
+              It Works
+            </span>
           </h2>
-          <p
-            style={{
-              color: "var(--color-text-secondary)",
-              fontSize: "1.05rem",
-              maxWidth: "500px",
-              margin: "0 auto",
-              lineHeight: 1.7,
-            }}
-          >
-            From sign-up to success — four simple steps to fund or support
-            the next big idea.
+          <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
+            From sign-up to success — four simple steps to fund or support the
+            next big idea.
           </p>
         </motion.div>
 
@@ -157,109 +106,43 @@ export default function HowItWorks() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "24px",
-          }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {steps.map((step, index) => (
             <motion.div key={index} variants={cardVariants}>
-              <div
-                className="glass-card"
-                style={{
-                  borderRadius: "16px",
-                  padding: "32px 28px",
-                  height: "100%",
-                  position: "relative",
-                  overflow: "hidden",
-                }}
-              >
+              <div className="h-full relative overflow-hidden rounded-2xl p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
                 {/* Step number watermark */}
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-10px",
-                    right: "16px",
-                    fontSize: "5rem",
-                    fontWeight: 900,
-                    color: "rgba(59, 130, 246, 0.04)",
-                    lineHeight: 1,
-                    pointerEvents: "none",
-                  }}
-                >
+                <span className="absolute -top-2 right-4 text-7xl font-black text-slate-200 dark:text-slate-800 select-none pointer-events-none">
                   {step.step}
                 </span>
 
                 {/* Icon */}
                 <div
-                  style={{
-                    width: "56px",
-                    height: "56px",
-                    borderRadius: "14px",
-                    background: step.bg,
-                    border: `1px solid ${step.border}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: step.color,
-                    marginBottom: "20px",
-                  }}
+                  className={`w-14 h-14 rounded-2xl ${step.bgClass} border ${step.borderClass} flex items-center justify-center ${step.iconColor} mb-5`}
                 >
                   {step.icon}
                 </div>
 
                 {/* Step Label */}
                 <span
-                  style={{
-                    color: step.color,
-                    fontSize: "0.75rem",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "1.5px",
-                    marginBottom: "8px",
-                    display: "block",
-                  }}
+                  className={`text-xs font-bold uppercase tracking-widest block mb-2 ${step.iconColor}`}
                 >
                   Step {step.step}
                 </span>
 
                 {/* Title */}
-                <h3
-                  style={{
-                    color: "var(--color-text-primary)",
-                    fontSize: "1.15rem",
-                    fontWeight: 700,
-                    marginBottom: "12px",
-                  }}
-                >
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">
                   {step.title}
                 </h3>
 
                 {/* Description */}
-                <p
-                  style={{
-                    color: "var(--color-text-secondary)",
-                    fontSize: "0.9rem",
-                    lineHeight: 1.7,
-                  }}
-                >
+                <p className="text-slate-600 dark:text-slate-300 text-sm leading-relaxed">
                   {step.description}
                 </p>
 
                 {/* Arrow connector on desktop */}
                 {index < steps.length - 1 && (
-                  <div
-                    className="hidden lg:flex"
-                    style={{
-                      position: "absolute",
-                      right: "-14px",
-                      top: "50%",
-                      transform: "translateY(-50%)",
-                      zIndex: 10,
-                      color: "rgba(59, 130, 246, 0.3)",
-                    }}
-                  >
+                  <div className="hidden lg:flex absolute -right-3 top.1/2 -translate-y-1/2 z-10 text-slate-300 dark:text-slate-700">
                     <FiArrowRight size={24} />
                   </div>
                 )}

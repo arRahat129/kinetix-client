@@ -14,7 +14,7 @@ const slides = [
       "Join thousands of creators and supporters shaping tomorrow. Discover campaigns that inspire and contribute to the ones that matter most.",
     cta: "Explore Campaigns",
     ctaLink: "/campaigns",
-    accent: "#3b82f6",
+    gradientClass: "from-blue-500 to-blue-400",
   },
   {
     badge: "For Visionary Creators",
@@ -24,7 +24,7 @@ const slides = [
       "Turn your creative spark into a movement. Set your goal, share your story, and watch your community bring it to life — one contribution at a time.",
     cta: "Start a Campaign",
     ctaLink: "/register",
-    accent: "#8b5cf6",
+    gradientClass: "from-purple-500 to-blue-400",
   },
   {
     badge: "Community Powered",
@@ -34,14 +34,13 @@ const slides = [
       "Whether it is a solar-powered invention or a local art project, your support makes the difference. Be the backer behind the next big breakthrough.",
     cta: "Get Started Free",
     ctaLink: "/register",
-    accent: "#06b6d4",
+    gradientClass: "from-cyan-500 to-blue-400",
   },
 ];
 
 export default function HeroSection() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Auto-advance loop cleanly without clone issues
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -50,205 +49,79 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        overflow: "hidden",
-        backgroundColor: "#090d16",
-      }}
-    >
-      {/* Background radial gradient */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(6, 182, 212, 0.08) 0%, transparent 50%)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
-
-      {/* Floating orbs */}
-      <div
-        className="animate-float"
-        style={{
-          position: "absolute",
-          top: "15%",
-          right: "10%",
-          width: "300px",
-          height: "300px",
-          borderRadius: "50%",
-          background:
-            "radial-gradient(circle, rgba(59, 130, 246, 0.1), transparent 70%)",
-          filter: "blur(40px)",
-          pointerEvents: "none",
-          zIndex: 1,
-        }}
-      />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-300">
+      {/* Background Radial Glow */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-950" />
 
       {/* Slide Container */}
-      <div
-        style={{
-          position: "relative",
-          width: "100%",
-          maxWidth: "800px",
-          padding: "120px 24px 80px",
-          textAlign: "center",
-          zIndex: 2,
-        }}
-      >
+      <div className="relative w-full max-w-4xl px-6 pt-32 pb-20 text-center z-10">
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
 
           return (
             <div
               key={index}
-              style={{
-                position: isActive ? "relative" : "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                opacity: isActive ? 1 : 0,
-                pointerEvents: isActive ? "auto" : "none",
-                transition: "opacity 0.8s ease-in-out",
-                visibility: isActive ? "visible" : "hidden",
-              }}
+              className={`transition-all duration-700 ease-in-out ${
+                isActive
+                  ? "relative opacity-100 pointer-events-auto visible block"
+                  : "absolute inset-0 opacity-0 pointer-events-none invisible hidden"
+              }`}
             >
               {/* Badge */}
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "8px 20px",
-                  borderRadius: "50px",
-                  background: "rgba(59, 130, 246, 0.1)",
-                  border: "1px solid rgba(59, 130, 246, 0.2)",
-                  color: "#60a5fa",
-                  fontSize: "0.85rem",
-                  fontWeight: 500,
-                  marginBottom: "28px",
-                }}
-              >
+              <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-100 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-sm font-medium mb-7 shadow-xs">
                 <HiOutlineSparkles size={16} />
-                {slide.badge}
+                <span>{slide.badge}</span>
               </div>
 
               {/* Heading */}
-              <h1
-                style={{
-                  fontSize: "clamp(2.2rem, 5vw, 4rem)",
-                  fontWeight: 800,
-                  lineHeight: 1.1,
-                  marginBottom: "24px",
-                  color: "#ffffff",
-                  letterSpacing: "-1px",
-                }}
-              >
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight text-slate-900 dark:text-white mb-6">
                 {slide.heading}
                 <br />
                 <span
-                  style={{
-                    background: `linear-gradient(135deg, ${slide.accent}, #60a5fa)`,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
+                  className={`bg-gradient-to-r ${slide.gradientClass} bg-clip-text text-transparent`}
                 >
                   {slide.headingAccent}
                 </span>
               </h1>
 
               {/* Subtitle */}
-              <p
-                style={{
-                  fontSize: "clamp(1rem, 1.8vw, 1.15rem)",
-                  color: "#94a3b8",
-                  lineHeight: 1.7,
-                  maxWidth: "600px",
-                  margin: "0 auto 40px",
-                }}
-              >
+              <p className="text-base sm:text-lg md:text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl mx-auto mb-10">
                 {slide.subtitle}
               </p>
 
               {/* Buttons */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "16px",
-                  flexWrap: "wrap",
-                }}
-              >
+              <div className="flex items-center justify-center gap-4 flex-wrap">
                 <Link
                   href={slide.ctaLink}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "12px 28px",
-                    borderRadius: "12px",
-                    background: "#2563eb",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold no-underline transition shadow-md hover:shadow-lg active:scale-95"
                 >
-                  {slide.cta}
+                  <span>{slide.cta}</span>
                   <FiArrowRight size={18} />
                 </Link>
                 <Link
                   href="#how-it-works"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "12px 28px",
-                    borderRadius: "12px",
-                    border: "1px solid rgba(255, 255, 255, 0.15)",
-                    color: "#ffffff",
-                    fontWeight: 600,
-                    textDecoration: "none",
-                    background: "rgba(255, 255, 255, 0.03)",
-                  }}
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 font-semibold no-underline transition active:scale-95"
                 >
                   <FiPlay size={16} />
-                  How It Works
+                  <span>How It Works</span>
                 </Link>
               </div>
             </div>
           );
         })}
 
-        {/* Custom Pagination Dots */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "10px",
-            marginTop: "40px",
-          }}
-        >
+        {/* Pagination Dots */}
+        <div className="flex justify-center gap-2.5 mt-10">
           {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentSlide(idx)}
-              style={{
-                width: idx === currentSlide ? "32px" : "10px",
-                height: "10px",
-                borderRadius: "5px",
-                border: "none",
-                background:
-                  idx === currentSlide ? "#2563eb" : "rgba(255, 255, 255, 0.2)",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-              }}
+              className={`h-2.5 rounded-full border-none cursor-pointer transition-all duration-300 ${
+                idx === currentSlide
+                  ? "w-8 bg-blue-600"
+                  : "w-2.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600"
+              }`}
+              aria-label={`Go to slide ${idx + 1}`}
             />
           ))}
         </div>
