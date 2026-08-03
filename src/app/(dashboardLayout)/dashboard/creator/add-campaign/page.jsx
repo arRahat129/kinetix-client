@@ -20,6 +20,7 @@ import {
     FiChevronDown
 } from 'react-icons/fi';
 import { Button, Card, Input, TextArea, Select, Label, ListBox } from '@heroui/react';
+import { useSession } from '@/lib/auth-client';
 
 const CATEGORIES = [
     { key: 'Technology', label: 'Technology' },
@@ -31,6 +32,9 @@ const CATEGORIES = [
 ];
 
 export default function AddCampaignPage() {
+    const { data: session } = useSession();
+    const user = session?.user;
+
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
@@ -126,7 +130,7 @@ export default function AddCampaignPage() {
             return;
         }
 
-        let finalImageUrl = imageUrl;
+        let finalImageUrl = imageUrl || 'https://i.ibb.co.com/ksKTC715/image.png';
 
         setLoading(true);
 
@@ -155,6 +159,10 @@ export default function AddCampaignPage() {
                 deadline: formData.deadline,
                 reward_info: formData.reward_info,
                 campaign_image_url: finalImageUrl,
+                userId: user?.id,
+                creatorName: user?.name,
+                creatorEmail: user?.email,
+                creatorProfileImg: user?.image,
                 status: 'pending',
                 createdAt: new Date().toISOString()
             };

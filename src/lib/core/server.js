@@ -2,6 +2,12 @@
 
 const baseUrl = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:5000';
 
+export const serverFetch = async (path) => {
+    const url = `${baseUrl}${path}`;
+    const res = await fetch(url);
+    return res.json();
+}
+
 export const serverMutation = async (path, data, method) => {
     const url = `${baseUrl}${path}`;
     const res = await fetch(url, {
@@ -12,4 +18,4 @@ export const serverMutation = async (path, data, method) => {
         body: JSON.stringify(data)
     });
     return res.json();
-}
+}
