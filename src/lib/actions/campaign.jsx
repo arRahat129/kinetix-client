@@ -16,4 +16,9 @@ export const deleteCampaign = async (id) => {
     const result = await serverMutation(`/api/campaigns/${id}`, {}, 'DELETE');
     return result;
 }
+
+export const updateCampaignStatus = async (id, status) => {
+    const result = await serverMutation(`/api/admin/campaigns/${id}/status`, { status }, 'PATCH');
+    return result;
+}
 

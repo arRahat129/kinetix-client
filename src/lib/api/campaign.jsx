@@ -28,3 +28,17 @@ export const getApprovedCampaigns = async ({ search = '', category = '', minGoal
 
     return await serverFetch(`/api/campaigns/approved?${params.toString()}`);
 };
+
+export const getAllCampaignsAdmin = async ({ search = '', status = '', page = 1, limit = 50 } = {}) => {
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (status) params.append('status', status);
+    if (page) params.append('page', page.toString());
+    if (limit) params.append('limit', limit.toString());
+
+    return await serverFetch(`/api/admin/campaigns?${params.toString()}`);
+};
+
+export const getPendingCampaigns = async ({ search = '', page = 1, limit = 50 } = {}) => {
+    return await getAllCampaignsAdmin({ search, status: 'pending', page, limit });
+};
