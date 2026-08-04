@@ -1,0 +1,574 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FiClock, FiUsers, FiTarget, FiFlag, FiStar,
+  FiChevronLeft, FiAlertTriangle, FiCheckCircle, FiLock
+} from "react-icons/fi";
+import { HiOutlineSparkles, HiOutlineRocketLaunch } from "react-icons/hi2";
+import Link from "next/link";
+import { useSession } from "@/lib/auth-client";
+import { getCampaignById } from "@/lib/api/campaign";
+
+// ── helpers ──────────────────────────────────────────────────────────────
+const CATEGORY_COLORS = {
+  Technology: "from-blue-500 to-cyan-500",
+  Art: "from-purple-500 to-pink-500",
+  Community: "from-emerald-500 to-teal-500",
+  Health: "from-rose-500 to-orange-400",
+  Education: "from-amber-500 to-yellow-400",
+  Environment: "from-green-500 to-lime-400",
+  Science: "from-indigo-500 to-violet-500",
+  Food: "from-orange-500 to-red-400",
+  default: "from-blue-500 to-indigo-500",
+};
+
+function getDeadlineInfo(deadline) {
+  if (!deadline) return { label: "No deadline", urgent: false };
+  const now = new Date();
+  const end = new Date(deadline);
+  const diff = end - now;
+  if (diff <= 0) return { label: "Campaign Ended", urgent: true };
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  if (days === 0) return { label: "Ends today!", urgent: true };
+  if (days === 1) return { label: "1 day left", urgent: true };
+  if (days <= 7) return { label: `${days} days left`, urgent: true };
+  return { label: `${days} days left`, urgent: false };
+}
+
+// ── Skeleton ─────────────────────────────────────────────────────────────
+function DetailSkeleton() {
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-12 animate-pulse space-y-6">
+      <div className="h-72 rounded-2xl bg-slate-200 dark:bg-slate-800" />
+      <div className="h-8 bg-slate-200 dark:bg-slate-800 rounded-xl w-3/4" />
+      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-full" />
+      <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-5/6" />
+    </div>
+  );
+}
+
+// ── Stars component ───────────────────────────────────────────────────────
+function StarRating({ value, onChange, readonly = false }) {
+  const [hovered, setHovered] = useState(0);
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <button
+          key={star}
+          type="button"
+          disabled={readonly}
+          onMouseEnter={() => !readonly && setHovered(star)}
+          onMouseLeave={() => !readonly && setHovered(0)}
+          onClick={() => !readonly && onChange && onChange(star)}
+          className={`text-xl transition-transform ${!readonly ? "hover:scale-110 cursor-pointer" : "cursor-default"}`}
+        >
+          <FiStar
+            className={`w-5 h-5 transition-colors ${star <= (hovered || value)
+              ? "fill-amber-400 stroke-amber-400"
+              : "stroke-slate-300 dark:stroke-slate-600"
+              }`}
+          />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── AccessDeniedBanner ────────────────────────────────────────────────────
+function AccessDeniedBanner({ message }) {
+  return (
+    <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm">
+      <FiLock className="w-5 h-5 shrink-0 text-slate-400" />
+      <span>{message}</span>
+    </div>
+  );
+}
+
+// ── Review Section ────────────────────────────────────────────────────────
+function ReviewSection({ campaign, session }) {
+  const [rating, setRating] = useState(0);
+  const [comment, setComment] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const user = session?.user;
+  const role = user?.role;
+  const isOwner = user?.id && campaign?.userId && user.id === campaign.userId;
+  const isSupporter = role === "Supporter";
+  const isCreatorNotOwner = role === "Creator" && !isOwner;
+
+  return (
+    <section className="mt-10">
+      <div className="flex items-center gap-2 mb-5">
+        <FiStar className="w-5 h-5 text-amber-400 fill-amber-400" />
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reviews</h2>
+      </div>
+
+      {/* ── Owner view ── */}
+      {isOwner && (
+        <div className="p-5 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+          <div className="flex items-center gap-2 mb-2">
+            <HiOutlineRocketLaunch className="w-5 h-5 text-blue-500" />
+            <span className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Your Campaign</span>
+          </div>
+          <p className="text-sm text-blue-600 dark:text-blue-400">
+            This is your campaign. You can't leave a review on your own project, but you can
+            see what others say below.
+          </p>
+        </div>
+      )}
+
+      {/* ── Creator (not owner) view ── */}
+      {isCreatorNotOwner && (
+        <AccessDeniedBanner message="Only Supporters can leave a review on campaigns. Creator accounts cannot submit reviews." />
+      )}
+
+      {/* ── Not logged in ── */}
+      {!user && (
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3">
+          <FiLock className="w-5 h-5 shrink-0" />
+          <span>
+            Please{" "}
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
+              sign in
+            </Link>{" "}
+            as a Supporter to leave a review.
+          </span>
+        </div>
+      )}
+
+      {/* ── Supporter — write a review ── */}
+      {isSupporter && !submitted && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4"
+        >
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Share your thoughts about this campaign:
+          </p>
+          <StarRating value={rating} onChange={setRating} />
+          <textarea
+            rows={4}
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="Write your review here..."
+            className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 resize-none"
+          />
+          <button
+            onClick={() => rating > 0 && comment.trim() && setSubmitted(true)}
+            disabled={rating === 0 || !comment.trim()}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            Submit Review
+          </button>
+        </motion.div>
+      )}
+
+      {isSupporter && submitted && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 text-sm"
+        >
+          <FiCheckCircle className="w-5 h-5 shrink-0" />
+          <div>
+            <p className="font-semibold">Review submitted!</p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
+              Thank you for sharing your feedback.
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Placeholder reviews list */}
+      <div className="mt-6 space-y-4">
+        <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+          Reviews from other supporters will appear here once submitted.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ── Report Section ────────────────────────────────────────────────────────
+const REPORT_REASONS = [
+  "Misleading information",
+  "Fraudulent campaign",
+  "Inappropriate content",
+  "Spam",
+  "Other",
+];
+
+function ReportSection({ campaign, session }) {
+  const [reason, setReason] = useState("");
+  const [details, setDetails] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const user = session?.user;
+  const role = user?.role;
+  const isOwner = user?.id && campaign?.userId && user.id === campaign.userId;
+  const isSupporter = role === "Supporter";
+  const isCreatorNotOwner = role === "Creator" && !isOwner;
+
+  return (
+    <section className="mt-10">
+      <div className="flex items-center gap-2 mb-5">
+        <FiFlag className="w-5 h-5 text-red-500" />
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Report Campaign</h2>
+      </div>
+
+      {/* ── Owner view ── */}
+      {isOwner && (
+        <div className="p-5 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+          <p className="text-sm text-blue-600 dark:text-blue-400">
+            You cannot report your own campaign.
+          </p>
+        </div>
+      )}
+
+      {/* ── Creator (not owner) view ── */}
+      {isCreatorNotOwner && (
+        <AccessDeniedBanner message="Only Supporters can report a campaign. Creator accounts do not have access to this feature." />
+      )}
+
+      {/* ── Not logged in ── */}
+      {!user && (
+        <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3">
+          <FiLock className="w-5 h-5 shrink-0" />
+          <span>
+            Please{" "}
+            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
+              sign in
+            </Link>{" "}
+            as a Supporter to report this campaign.
+          </span>
+        </div>
+      )}
+
+      {/* ── Supporter — report form ── */}
+      {isSupporter && !submitted && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-5 rounded-2xl border border-red-100 dark:border-red-900/60 bg-red-50/50 dark:bg-red-950/20 space-y-4"
+        >
+          <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
+            <FiAlertTriangle className="w-4 h-4 shrink-0" />
+            <span>Use this form only for legitimate concerns. False reports may result in account suspension.</span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              Reason
+            </label>
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-red-400/30 appearance-none"
+            >
+              <option value="">Select a reason…</option>
+              {REPORT_REASONS.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+              Additional Details
+            </label>
+            <textarea
+              rows={3}
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              placeholder="Describe the issue in detail…"
+              className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-red-400/30 resize-none"
+            />
+          </div>
+
+          <button
+            onClick={() => reason && setSubmitted(true)}
+            disabled={!reason}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            <FiFlag className="inline mr-1.5 mb-0.5" />
+            Submit Report
+          </button>
+        </motion.div>
+      )}
+
+      {isSupporter && submitted && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.97 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 text-sm"
+        >
+          <FiCheckCircle className="w-5 h-5 shrink-0" />
+          <div>
+            <p className="font-semibold">Report submitted!</p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
+              Our moderation team will review it shortly.
+            </p>
+          </div>
+        </motion.div>
+      )}
+    </section>
+  );
+}
+
+// ── Main Detail Page ──────────────────────────────────────────────────────
+export default function CampaignDetailPage() {
+  const { id } = useParams();
+  const { data: session } = useSession();
+  const [campaign, setCampaign] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("story");
+
+  useEffect(() => {
+    if (!id) return;
+    setLoading(true);
+    getCampaignById(id)
+      .then((data) => setCampaign(data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) return <DetailSkeleton />;
+
+  if (!campaign || campaign.message) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
+        <HiOutlineRocketLaunch className="w-14 h-14 text-slate-300 dark:text-slate-700" />
+        <h2 className="text-xl font-bold text-slate-800 dark:text-white">Campaign not found</h2>
+        <p className="text-sm text-slate-500">It may have been removed or doesn't exist.</p>
+        <Link
+          href="/campaigns"
+          className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition no-underline"
+        >
+          <FiChevronLeft size={15} /> Back to Campaigns
+        </Link>
+      </div>
+    );
+  }
+
+  const {
+    campaign_title,
+    campaign_story,
+    campaign_image_url,
+    funding_goal,
+    raised_amount = 0,
+    category,
+    deadline,
+    creatorName,
+    creatorProfileImg,
+    creatorEmail,
+    supporters_count = 0,
+  } = campaign;
+
+  const progress = funding_goal
+    ? Math.min(100, Math.round((raised_amount / funding_goal) * 100))
+    : 0;
+  const gradient = CATEGORY_COLORS[category] || CATEGORY_COLORS.default;
+  const { label: deadlineLabel, urgent } = getDeadlineInfo(deadline);
+
+  const TABS = [
+    { id: "story", label: "Story" },
+    { id: "reviews", label: "Reviews" },
+    { id: "report", label: "Report" },
+  ];
+
+  return (
+    <main className="min-h-screen bg-slate-50 dark:bg-[#060b18] pb-20">
+
+      {/* ── Hero image ── */}
+      <div className="relative w-full h-72 sm:h-96 overflow-hidden bg-slate-200 dark:bg-slate-800">
+        {campaign_image_url ? (
+          <img
+            src={campaign_image_url}
+            alt={campaign_title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+            <HiOutlineSparkles className="w-20 h-20 text-white/40" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+
+        {/* Back button */}
+        <Link
+          href="/campaigns"
+          className="absolute top-5 left-5 flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black/30 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold no-underline hover:bg-black/50 transition"
+        >
+          <FiChevronLeft size={14} /> All Campaigns
+        </Link>
+
+        {/* Category + deadline */}
+        <div className="absolute bottom-5 left-5 flex items-center gap-2 flex-wrap">
+          {category && (
+            <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${gradient} shadow`}>
+              {category}
+            </span>
+          )}
+          <span
+            className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border backdrop-blur-sm ${urgent
+              ? "bg-red-500/90 border-red-400 text-white"
+              : "bg-black/40 border-white/20 text-white"
+              }`}
+          >
+            <FiClock size={11} /> {deadlineLabel}
+          </span>
+        </div>
+      </div>
+
+      {/* ── Main content ── */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-6 relative z-10">
+
+        {/* ── Card wrapper ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+        >
+          <div className="p-6 sm:p-8">
+
+            {/* Title */}
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight mb-4">
+              {campaign_title}
+            </h1>
+
+            {/* Creator */}
+            <div className="flex items-center gap-3 mb-6">
+              {creatorProfileImg ? (
+                <img src={creatorProfileImg} alt={creatorName} className="w-9 h-9 rounded-full object-cover" />
+              ) : (
+                <div className={`w-9 h-9 rounded-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
+                  <span className="text-white text-xs font-bold">
+                    {(creatorName || "?")[0].toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{creatorName || "Anonymous"}</p>
+                {creatorEmail && (
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{creatorEmail}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Progress stats */}
+            <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 mb-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+                <div>
+                  <p className={`text-2xl font-extrabold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
+                    {Number(raised_amount).toLocaleString()} credits
+                  </p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    raised of{" "}
+                    <span className="font-semibold text-slate-700 dark:text-slate-300">
+                      {Number(funding_goal || 0).toLocaleString()} credit goal
+                    </span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-6 text-center">
+                  <div>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white">{progress}%</p>
+                    <p className="text-[11px] text-slate-400">funded</p>
+                  </div>
+                  <div>
+                    <p className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-1">
+                      <FiUsers size={14} className="text-blue-500" />
+                      {supporters_count}
+                    </p>
+                    <p className="text-[11px] text-slate-400">supporters</p>
+                  </div>
+                </div>
+              </div>
+              <div className="w-full h-3 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1.2, ease: "easeOut" }}
+                  className={`h-full rounded-full bg-gradient-to-r ${gradient}`}
+                />
+              </div>
+            </div>
+
+            {/* Support CTA — only for Supporters or guests */}
+            {(!session?.user || session?.user?.role === "Supporter") && (
+              <button className={`w-full py-3.5 rounded-xl text-white font-bold text-sm bg-gradient-to-r ${gradient} hover:opacity-90 active:scale-[0.99] transition-all shadow-lg mb-6`}>
+                <HiOutlineRocketLaunch className="inline w-4 h-4 mr-2 mb-0.5" />
+                Support This Campaign
+              </button>
+            )}
+
+            {/* ── Tabs ── */}
+            <div className="flex border-b border-slate-200 dark:border-slate-800 gap-0 mb-6">
+              {TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-5 py-2.5 text-sm font-semibold border-b-2 transition-all ${activeTab === tab.id
+                    ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                    : "border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                    }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            {/* ── Tab content ── */}
+            <AnimatePresence mode="wait">
+              {activeTab === "story" && (
+                <motion.div
+                  key="story"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {campaign_story ? (
+                    <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed whitespace-pre-line">
+                      {campaign_story}
+                    </p>
+                  ) : (
+                    <p className="text-slate-400 italic text-sm">No campaign story provided.</p>
+                  )}
+                </motion.div>
+              )}
+
+              {activeTab === "reviews" && (
+                <motion.div
+                  key="reviews"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ReviewSection campaign={campaign} session={session} />
+                </motion.div>
+              )}
+
+              {activeTab === "report" && (
+                <motion.div
+                  key="report"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <ReportSection campaign={campaign} session={session} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </div>
+    </main>
+  );
+}

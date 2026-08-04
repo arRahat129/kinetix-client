@@ -15,6 +15,12 @@ export const getMyCampaigns = async ({ userId, search = '', status = '', sortBy 
     return await serverFetch(`/api/campaigns/my-campaigns?${params.toString()}`);
 };
 
+export const getCampaignById = async (id) => {
+    return await serverFetch(`/api/campaigns/${id}`);
+};
+
+
+
 export const getApprovedCampaigns = async ({ search = '', category = '', minGoal = '', maxGoal = '', sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 } = {}) => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
