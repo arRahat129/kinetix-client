@@ -21,12 +21,10 @@ export const getCampaignById = async (id) => {
 
 
 
-export const getApprovedCampaigns = async ({ search = '', category = '', minGoal = '', maxGoal = '', sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 } = {}) => {
+export const getApprovedCampaigns = async ({ search = '', category = '', sortBy = 'createdAt', sortOrder = 'desc', page = 1, limit = 10 } = {}) => {
     const params = new URLSearchParams();
     if (search) params.append('search', search);
-    if (category) params.append('category', category);
-    if (minGoal) params.append('minGoal', minGoal);
-    if (maxGoal) params.append('maxGoal', maxGoal);
+    if (category) params.append('category', category.toLowerCase());
     if (sortBy) params.append('sortBy', sortBy);
     if (sortOrder) params.append('sortOrder', sortOrder);
     if (page) params.append('page', page.toString());

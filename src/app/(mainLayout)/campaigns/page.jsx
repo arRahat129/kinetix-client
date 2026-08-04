@@ -72,9 +72,7 @@ export default function ExploreCampaignsPage() {
         try {
             const res = await getApprovedCampaigns({
                 search: debouncedSearch,
-                category: category === "All" ? "" : category,
-                minGoal,
-                maxGoal,
+                category: category === "All" ? "" : category.toLowerCase(),
                 sortBy,
                 sortOrder,
                 page,
@@ -90,7 +88,7 @@ export default function ExploreCampaignsPage() {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, category, minGoal, maxGoal, sortBy, sortOrder, page]);
+    }, [debouncedSearch, category, sortBy, sortOrder, page]);
 
     useEffect(() => {
         fetchCampaigns();
@@ -106,16 +104,12 @@ export default function ExploreCampaignsPage() {
         setDebouncedSearch("");
         setCategory("");
         setSortValue("createdAt-desc");
-        setMinGoal("");
-        setMaxGoal("");
         setPage(1);
     };
 
     const activeFiltersCount = [
         debouncedSearch,
         category && category !== "All",
-        minGoal,
-        maxGoal,
         sortValue !== "createdAt-desc",
     ].filter(Boolean).length;
 
@@ -265,31 +259,10 @@ export default function ExploreCampaignsPage() {
                             transition={{ duration: 0.25 }}
                             className="overflow-hidden"
                         >
-                            <div className="mt-3 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 backdrop-blur-sm flex flex-wrap gap-4 items-end">
-                                <div className="flex flex-col gap-1 min-w-[130px]">
-                                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Min Goal (credits)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={minGoal}
-                                        onChange={(e) => { setMinGoal(e.target.value); setPage(1); }}
-                                        placeholder="e.g. 1000"
-                                        className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    />
-                                </div>
-                                <div className="flex flex-col gap-1 min-w-[130px]">
-                                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                                        Max Goal (credits)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={maxGoal}
-                                        onChange={(e) => { setMaxGoal(e.target.value); setPage(1); }}
-                                        placeholder="e.g. 50000"
-                                        className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30"
-                                    />
-                                </div>
+                            <div className="mt-3 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 backdrop-blur-sm flex items-center justify-between">
+                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                    Active filters applied
+                                </p>
                                 {activeFiltersCount > 0 && (
                                     <button
                                         onClick={handleClearFilters}

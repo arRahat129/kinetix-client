@@ -6,14 +6,14 @@ import { FiClock, FiUsers, FiArrowRight, FiTarget } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 
 const CATEGORY_COLORS = {
-  Technology: "from-blue-500 to-cyan-500",
-  Art: "from-purple-500 to-pink-500",
-  Community: "from-emerald-500 to-teal-500",
-  Health: "from-rose-500 to-orange-400",
-  Education: "from-amber-500 to-yellow-400",
-  Environment: "from-green-500 to-lime-400",
-  Science: "from-indigo-500 to-violet-500",
-  Food: "from-orange-500 to-red-400",
+  technology: "from-blue-500 to-cyan-500",
+  art: "from-purple-500 to-pink-500",
+  community: "from-emerald-500 to-teal-500",
+  health: "from-rose-500 to-orange-400",
+  education: "from-amber-500 to-yellow-400",
+  environment: "from-green-500 to-lime-400",
+  science: "from-indigo-500 to-violet-500",
+  food: "from-orange-500 to-red-400",
   default: "from-blue-500 to-indigo-500",
 };
 
@@ -48,7 +48,11 @@ export default function CampaignCard({ campaign, index = 0 }) {
   const progress = funding_goal
     ? Math.min(100, Math.round((raised_amount / funding_goal) * 100))
     : 0;
-  const gradient = CATEGORY_COLORS[category] || CATEGORY_COLORS.default;
+  const normCat = category?.toLowerCase();
+  const gradient = CATEGORY_COLORS[normCat] || CATEGORY_COLORS.default;
+  const displayCategory = category
+    ? category.charAt(0).toUpperCase() + category.slice(1)
+    : "";
   const { label: deadlineLabel, urgent } = getDeadlineInfo(deadline);
 
   return (
@@ -78,8 +82,8 @@ export default function CampaignCard({ campaign, index = 0 }) {
 
             {/* Category Badge */}
             {category && (
-              <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${gradient} shadow-md`}>
-                {category}
+              <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${gradient} shadow-md uppercase tracking-wider text-[10px]`}>
+                {displayCategory}
               </span>
             )}
 
