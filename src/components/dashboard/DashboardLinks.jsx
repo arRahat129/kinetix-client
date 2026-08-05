@@ -39,7 +39,7 @@ export default function DashboardLinks({ onNavClick }) {
       { href: "/dashboard/creator/payment-history", label: "Payment History", icon: FiFileText },
     ],
     admin: [
-      { href: "/", label: "Home", icon: FiHome },
+      { href: "/dashboard/admin", label: "Home", icon: FiHome },
       { href: "/dashboard/admin/manage-users", label: "Manage Users", icon: FiUsers },
       { href: "/dashboard/admin/manage-campaigns", label: "Manage Campaigns", icon: FiFolderPlus },
       { href: "/dashboard/admin/withdrawal-requests", label: "Withdrawal Requests", icon: FiDollarSign },
@@ -50,7 +50,8 @@ export default function DashboardLinks({ onNavClick }) {
   const currentLinks = roleLinks[role] || roleLinks.supporter;
 
   const isActive = (href) => {
-    if (href === "/dashboard/supporter" || href === "/dashboard/creator") {
+    const exactMatches = ["/dashboard/supporter", "/dashboard/creator", "/dashboard/admin"];
+    if (exactMatches.includes(href)) {
       return pathname === href;
     }
     return pathname === href || pathname.startsWith(href + "/");

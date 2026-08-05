@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiX, FiCreditCard, FiMessageSquare, FiAlertCircle } from "react-icons/fi";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
@@ -13,6 +13,7 @@ export default function SupportCampaignModal({ isOpen, onClose, campaign, sessio
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const successRef = useRef(false);
 
   if (!isOpen || !campaign) return null;
 
@@ -42,7 +43,7 @@ export default function SupportCampaignModal({ isOpen, onClose, campaign, sessio
 
       if (result.success) {
         setSuccess(true);
-        onSuccess && onSuccess();
+        successRef.current = true;
       } else {
         setError(result.message || "Failed to submit contribution");
       }
@@ -54,11 +55,16 @@ export default function SupportCampaignModal({ isOpen, onClose, campaign, sessio
   };
 
   const handleClose = () => {
+    const didSucceed = successRef.current;
+    successRef.current = false;
     setAmount("");
     setMessage("");
     setError("");
     setSuccess(false);
     onClose();
+    if (didSucceed) {
+      onSuccess && onSuccess();
+    }
   };
 
   return (

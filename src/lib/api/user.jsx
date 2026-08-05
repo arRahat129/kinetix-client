@@ -7,3 +7,7 @@ export const getAllUsers = async ({ search = '', role = '' } = {}) => {
 
     return await serverFetch(`/api/admin/users?${params.toString()}`);
 };
+
+export const getAdminStats = async () => {
+    return await serverFetch("/api/admin/stats");
+};

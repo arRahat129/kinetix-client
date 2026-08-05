@@ -2,18 +2,20 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth-client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import toast, { Toaster } from "react-hot-toast";
 import {
   FiTrendingUp, FiDollarSign, FiAlertCircle, FiCreditCard,
   FiRefreshCw, FiCheckCircle, FiChevronLeft, FiChevronRight,
-  FiClock, FiInfo
+  FiClock, FiInfo, FiEye, FiEdit2, FiTrash2
 } from "react-icons/fi";
 import { HiOutlineSparkles, HiOutlineBanknotes } from "react-icons/hi2";
 import { getCreatorStats } from "@/lib/api/contribution";
 import { getCreatorWithdrawals } from "@/lib/api/withdrawal";
-import { createWithdrawal } from "@/lib/actions/withdrawal";
+import { createWithdrawal, deleteWithdrawal } from "@/lib/actions/withdrawal";
 import ConfirmModal from "@/components/modals/ConfirmModal";
+import UpdateWithdrawalModal from "@/components/modals/UpdateWithdrawalModal";
+import WithdrawalDetailModal from "@/components/modals/WithdrawalDetailModal";
 
 const PAYMENT_SYSTEMS = ["Stripe", "Bkash", "Rocket", "Nagad", "Bank Transfer", "PayPal"];
 
@@ -34,25 +36,33 @@ export default function WithdrawalsPage() {
   const { data: session } = useSession();
   const user = session?.user;
 
-  const [stats, setStats] = useState({ totalAmountRaised: 0 });
+  const [stats, setStats] = useState({ totalAmountRaised: 0, creatorCredits: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
   const [withdrawals, setWithdrawals] = useState([]);
   const [withdrawalsLoading, setWithdrawalsLoading] = useState(true);
 
+  // New withdrawal request form
   const [creditsToWithdraw, setCreditsToWithdraw] = useState("");
   const [paymentSystem, setPaymentSystem] = useState(PAYMENT_SYSTEMS[0]);
   const [accountNumber, setAccountNumber] = useState("");
   const [formLoading, setFormLoading] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
+  // Modals state
+  const [viewDetail, setViewDetail] = useState(null);
+  const [editWithdrawal, setEditWithdrawal] = useState(null);
+  const [deleteRequest, setDeleteRequest] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
   const [page, setPage] = useState(1);
   const LIMIT = 8;
 
   const totalRaised = Number(stats.totalAmountRaised || 0);
+  const creatorCredits = Number(stats.creatorCredits || 0);
   const withdrawalDollars = creditsToWithdraw ? (Number(creditsToWithdraw) / 20).toFixed(2) : "0.00";
-  const canWithdraw = totalRaised >= 200;
+  const canWithdraw = creatorCredits >= 200;
   const creditsNum = Number(creditsToWithdraw) || 0;
-  const isOverLimit = creditsNum > totalRaised;
+  const isOverLimit = creditsNum > creatorCredits;
   const isBelowMin = creditsNum < 200 && creditsNum > 0;
 
   const fetchStats = useCallback(async () => {
@@ -61,8 +71,11 @@ export default function WithdrawalsPage() {
     try {
       const res = await getCreatorStats({ creatorEmail: user.email, userId: user.id });
       if (res.success) setStats(res);
-    } catch (e) { console.error(e); }
-    finally { setStatsLoading(false); }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setStatsLoading(false);
+    }
   }, [user?.email, user?.id]);
 
   const fetchWithdrawals = useCallback(async () => {
@@ -71,12 +84,17 @@ export default function WithdrawalsPage() {
     try {
       const res = await getCreatorWithdrawals(user.email);
       if (res.success) setWithdrawals(res.data || []);
-    } catch (e) { console.error(e); }
-    finally { setWithdrawalsLoading(false); }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setWithdrawalsLoading(false);
+    }
   }, [user?.email]);
 
-  useEffect(() => { fetchStats(); }, [fetchStats]);
-  useEffect(() => { fetchWithdrawals(); }, [fetchWithdrawals]);
+  useEffect(() => {
+    fetchStats();
+    fetchWithdrawals();
+  }, [fetchStats, fetchWithdrawals]);
 
   const handleWithdraw = async () => {
     setFormLoading(true);
@@ -85,9 +103,8 @@ export default function WithdrawalsPage() {
         creator_email: user.email,
         creator_name: user.name,
         withdrawal_credit: creditsNum,
-        withdrawal_amount: Number(withdrawalDollars),
         payment_system: paymentSystem,
-        account_number: accountNumber,
+        account_number: accountNumber.trim(),
       });
       if (res.success) {
         toast.success("Withdrawal request submitted successfully!");
@@ -96,12 +113,33 @@ export default function WithdrawalsPage() {
         fetchWithdrawals();
         fetchStats();
       } else {
-        toast.error(res.message || "Failed to submit withdrawal request");
+        toast.error(res.message || "Failed to submit request.");
       }
-    } catch (e) { toast.error("An error occurred"); }
-    finally {
+    } catch (e) {
+      toast.error("An error occurred");
+    } finally {
       setFormLoading(false);
       setConfirmOpen(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!deleteRequest) return;
+    setDeleteLoading(true);
+    try {
+      const res = await deleteWithdrawal(deleteRequest._id);
+      if (res.success) {
+        toast.success("Withdrawal request cancelled. Credits returned to your balance.");
+        fetchWithdrawals();
+        fetchStats();
+      } else {
+        toast.error(res.message || "Failed to cancel request.");
+      }
+    } catch (e) {
+      toast.error("An error occurred.");
+    } finally {
+      setDeleteLoading(false);
+      setDeleteRequest(null);
     }
   };
 
@@ -112,6 +150,7 @@ export default function WithdrawalsPage() {
     <div className="space-y-8 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
       <Toaster position="top-right" />
 
+      {/* Header */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
           <HiOutlineBanknotes className="text-blue-500" size={28} />
@@ -122,6 +161,7 @@ export default function WithdrawalsPage() {
         </p>
       </div>
 
+      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -130,12 +170,12 @@ export default function WithdrawalsPage() {
         >
           <div className="flex items-center gap-3 mb-3">
             <FiTrendingUp size={22} />
-            <p className="font-semibold text-blue-100">Total Credits Raised</p>
+            <p className="font-semibold text-blue-100">Available to Withdraw</p>
           </div>
           <p className="text-4xl font-extrabold">
-            {statsLoading ? "—" : totalRaised.toLocaleString()}
+            {statsLoading ? "—" : creatorCredits.toLocaleString()}
           </p>
-          <p className="text-blue-200 text-sm mt-1">credits from all campaigns</p>
+          <p className="text-blue-200 text-sm mt-1">credits in your balance</p>
         </motion.div>
 
         <motion.div
@@ -149,27 +189,29 @@ export default function WithdrawalsPage() {
             <p className="font-semibold text-emerald-100">Withdrawal Value</p>
           </div>
           <p className="text-4xl font-extrabold">
-            ${statsLoading ? "—" : (totalRaised / 20).toFixed(2)}
+            ${statsLoading ? "—" : (creatorCredits / 20).toFixed(2)}
           </p>
           <p className="text-emerald-200 text-sm mt-1">USD equivalent (20 cr = $1)</p>
         </motion.div>
       </div>
 
+      {/* Business logic info */}
       <div className="flex items-start gap-3 p-4 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/60 text-sm text-blue-800 dark:text-blue-300">
         <FiInfo size={18} className="text-blue-500 shrink-0 mt-0.5" />
         <p>
-          <span className="font-semibold">Business rule:</span> Supporters purchase 10 credits for $1, but you (as a Creator) withdraw at 20 credits per $1. Minimum withdrawal is 200 credits ($10).
+          <span className="font-semibold">Business rule:</span> Supporters purchase 10 credits for $1, but you (as a Creator) withdraw at 20 credits per $1. Minimum withdrawal is 200 credits ($10). Your <span className="font-semibold">available balance</span> reflects credits earned from approved contributions minus any pending withdrawals.
         </p>
       </div>
 
+      {/* Withdrawal Form */}
       {!canWithdraw ? (
         <div className="p-6 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/60 text-center space-y-3">
           <FiAlertCircle className="w-12 h-12 text-amber-500 mx-auto" />
-          <p className="text-xl font-bold text-amber-800 dark:text-amber-300">Insufficient Credit</p>
+          <p className="text-xl font-bold text-amber-800 dark:text-amber-300">Insufficient Credit Balance</p>
           <p className="text-sm text-amber-700 dark:text-amber-400">
-            You have <span className="font-bold">{totalRaised.toLocaleString()}</span> credits raised. You need at least <span className="font-bold">200 credits</span> to withdraw.
+            You have <span className="font-bold">{creatorCredits.toLocaleString()}</span> credits available. You need at least <span className="font-bold">200 credits</span> to withdraw.
           </p>
-          <p className="text-xs text-amber-600 dark:text-amber-500">Keep promoting your campaigns to raise more credits!</p>
+          <p className="text-xs text-amber-600 dark:text-amber-500">Have supporters approve their contributions to grow your credit balance!</p>
         </div>
       ) : (
         <motion.div
@@ -190,14 +232,14 @@ export default function WithdrawalsPage() {
               <input
                 type="number"
                 min={200}
-                max={totalRaised}
+                max={creatorCredits}
                 value={creditsToWithdraw}
                 onChange={(e) => setCreditsToWithdraw(e.target.value)}
-                placeholder={`Min: 200, Max: ${totalRaised}`}
+                placeholder={`Min: 200, Max: ${creatorCredits}`}
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500/30"
               />
-              {isOverLimit && <p className="text-xs text-rose-500 mt-1">Cannot exceed your total raised ({totalRaised.toLocaleString()} credits)</p>}
-              {isBelowMin && <p className="text-xs text-amber-500 mt-1">Minimum withdrawal is 200 credits</p>}
+              {isOverLimit && <p className="text-xs text-rose-500 mt-1">Cannot exceed your balance ({creatorCredits.toLocaleString()} credits)</p>}
+              {isBelowMin && <p className="text-xs text-amber-500 mt-1">Minimum is 200 credits</p>}
             </div>
 
             <div>
@@ -208,7 +250,6 @@ export default function WithdrawalsPage() {
                 <FiDollarSign className="text-emerald-500 mr-1" size={18} />
                 {withdrawalDollars}
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">Calculated at 20 credits = $1</p>
             </div>
 
             <div>
@@ -218,7 +259,7 @@ export default function WithdrawalsPage() {
               <select
                 value={paymentSystem}
                 onChange={(e) => setPaymentSystem(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500/30 appearance-none"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500/30"
               >
                 {PAYMENT_SYSTEMS.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -232,7 +273,7 @@ export default function WithdrawalsPage() {
                 type="text"
                 value={accountNumber}
                 onChange={(e) => setAccountNumber(e.target.value)}
-                placeholder="Enter your account number..."
+                placeholder="Enter account details..."
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500/30"
               />
             </div>
@@ -257,6 +298,7 @@ export default function WithdrawalsPage() {
         </motion.div>
       )}
 
+      {/* Payout History */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -277,15 +319,15 @@ export default function WithdrawalsPage() {
           <div className="py-12 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white/40 dark:bg-slate-900/40 space-y-2">
             <HiOutlineBanknotes className="w-10 h-10 text-slate-300 dark:text-slate-600 mx-auto" />
             <p className="font-semibold text-slate-700 dark:text-slate-300">No withdrawal history yet</p>
-            <p className="text-sm text-slate-400">Your withdrawal requests will appear here.</p>
           </div>
         ) : (
           <>
+            {/* Desktop View */}
             <div className="hidden lg:block overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80">
-                    {["Date", "Credits", "Amount ($)", "Payment", "Account", "Status"].map((h) => (
+                    {["Date", "Credits", "Amount ($)", "Payment", "Account", "Status", "Actions"].map((h) => (
                       <th key={h} className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">{h}</th>
                     ))}
                   </tr>
@@ -301,12 +343,42 @@ export default function WithdrawalsPage() {
                       <td className="px-5 py-3.5 text-slate-700 dark:text-slate-300">{w.payment_system}</td>
                       <td className="px-5 py-3.5 text-slate-600 dark:text-slate-400 max-w-[120px] truncate">{w.account_number}</td>
                       <td className="px-5 py-3.5"><StatusBadge status={w.status} /></td>
+                      <td className="px-5 py-3.5 text-xs">
+                        <div className="flex gap-2">
+                          <button
+                            title="View Detail"
+                            onClick={() => setViewDetail(w)}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 hover:text-blue-600 transition"
+                          >
+                            <FiEye size={14} />
+                          </button>
+                          {w.status === "pending" && (
+                            <>
+                              <button
+                                title="Edit Request"
+                                onClick={() => setEditWithdrawal(w)}
+                                className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 hover:text-blue-700 transition"
+                              >
+                                <FiEdit2 size={14} />
+                              </button>
+                              <button
+                                title="Cancel Request"
+                                onClick={() => setDeleteRequest(w)}
+                                className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:text-rose-700 transition"
+                              >
+                                <FiTrash2 size={14} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
+            {/* Mobile View */}
             <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
               {pagedWithdrawals.map((w) => (
                 <div key={w._id} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3">
@@ -316,17 +388,34 @@ export default function WithdrawalsPage() {
                     </span>
                     <StatusBadge status={w.status} />
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between">
                     <div>
                       <p className="text-xs text-slate-400">Credits</p>
-                      <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{Number(w.withdrawal_credit).toLocaleString()}</p>
+                      <p className="text-base font-bold text-blue-600 dark:text-blue-400">{Number(w.withdrawal_credit).toLocaleString()}</p>
                     </div>
                     <div>
                       <p className="text-xs text-slate-400">Amount</p>
-                      <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400">${Number(w.withdrawal_amount).toFixed(2)}</p>
+                      <p className="text-base font-bold text-emerald-600 dark:text-emerald-400">${Number(w.withdrawal_amount).toFixed(2)}</p>
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500">{w.payment_system} • {w.account_number}</p>
+                  <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-xs text-slate-500">{w.payment_system}</span>
+                    <div className="flex gap-2">
+                      <button onClick={() => setViewDetail(w)} className="p-1.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600">
+                        <FiEye size={13} />
+                      </button>
+                      {w.status === "pending" && (
+                        <>
+                          <button onClick={() => setEditWithdrawal(w)} className="p-1.5 rounded bg-blue-50 text-blue-600">
+                            <FiEdit2 size={13} />
+                          </button>
+                          <button onClick={() => setDeleteRequest(w)} className="p-1.5 rounded bg-rose-50 text-rose-600">
+                            <FiTrash2 size={13} />
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -350,15 +439,49 @@ export default function WithdrawalsPage() {
         )}
       </div>
 
+      {/* View Detail Modal */}
+      <WithdrawalDetailModal
+        isOpen={!!viewDetail}
+        onClose={() => setViewDetail(null)}
+        withdrawal={viewDetail}
+      />
+
+      {/* Edit Modal */}
+      {editWithdrawal && (
+        <UpdateWithdrawalModal
+          isOpen={!!editWithdrawal}
+          onClose={() => setEditWithdrawal(null)}
+          withdrawal={editWithdrawal}
+          stats={stats}
+          onSuccess={() => {
+            fetchWithdrawals();
+            fetchStats();
+          }}
+        />
+      )}
+
+      {/* New Withdrawal Request Confirm Modal */}
       <ConfirmModal
         isOpen={confirmOpen}
         onClose={() => setConfirmOpen(false)}
         onConfirm={handleWithdraw}
         loading={formLoading}
         variant="info"
-        title="Confirm Withdrawal"
-        description={`Withdraw ${creditsNum.toLocaleString()} credits ($${withdrawalDollars}) via ${paymentSystem} to account: ${accountNumber}?`}
-        confirmText="Submit Request"
+        title="Confirm Payout Request"
+        description={`Are you sure you want to request a payout of ${creditsNum.toLocaleString()} credits ($${withdrawalDollars}) via ${paymentSystem} to account: ${accountNumber}? This will immediately deduct the credits from your balance.`}
+        confirmText="Request Payout"
+      />
+
+      {/* Delete/Cancel Request Confirm Modal */}
+      <ConfirmModal
+        isOpen={!!deleteRequest}
+        onClose={() => setDeleteRequest(null)}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+        variant="danger"
+        title="Cancel Withdrawal Request?"
+        description={`Are you sure you want to cancel your payout request of ${Number(deleteRequest?.withdrawal_credit || 0).toLocaleString()} credits? The credits will be immediately refunded to your available balance.`}
+        confirmText="Cancel Request"
       />
     </div>
   );

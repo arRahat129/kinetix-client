@@ -3,26 +3,19 @@
 import { useState, useEffect, useCallback } from "react";
 import { useSession } from "@/lib/auth-client";
 import { motion, AnimatePresence } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
 import {
   FiHeart, FiSearch, FiFilter, FiRefreshCw,
-  FiChevronLeft, FiChevronRight
+  FiChevronLeft, FiChevronRight, FiEye, FiEdit2, FiTrash2
 } from "react-icons/fi";
 import { HiOutlineSparkles } from "react-icons/hi2";
 import Link from "next/link";
 import { getContributions } from "@/lib/api/contribution";
-
-const StatusBadge = ({ status }) => {
-  const styles = {
-    pending: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
-    approved: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
-    rejected: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
-  };
-  return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border capitalize ${styles[status] || styles.pending}`}>
-      {status}
-    </span>
-  );
-};
+import { deleteContribution } from "@/lib/actions/contribution";
+import StatusBadge from "@/components/dashboard/StatusBadge";
+import ConfirmModal from "@/components/modals/ConfirmModal";
+import ContributionDetailModal from "@/components/modals/ContributionDetailModal";
+import UpdateContributionModal from "@/components/modals/UpdateContributionModal";
 
 const STATUS_OPTIONS = ["", "pending", "approved", "rejected"];
 const LIMIT = 10;
@@ -38,6 +31,12 @@ export default function MyContributionsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+
+  // Modals state
+  const [viewDetail, setViewDetail] = useState(null);
+  const [editContribution, setEditContribution] = useState(null);
+  const [deleteRequest, setDeleteRequest] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const email = user?.email;
 
@@ -62,15 +61,38 @@ export default function MyContributionsPage() {
       }
     } catch (e) {
       console.error(e);
+      toast.error("Failed to load contributions.");
     } finally {
       setLoading(false);
     }
   }, [email, isPending, statusFilter, search, page]);
 
-  useEffect(() => { fetchContributions(); }, [fetchContributions]);
+  useEffect(() => {
+    fetchContributions();
+  }, [fetchContributions]);
+
+  const handleDelete = async () => {
+    if (!deleteRequest) return;
+    setDeleteLoading(true);
+    try {
+      const res = await deleteContribution(deleteRequest._id);
+      if (res.success) {
+        toast.success("Contribution successfully withdrawn.");
+        fetchContributions();
+      } else {
+        toast.error(res.message || "Failed to withdraw contribution.");
+      }
+    } catch (err) {
+      toast.error("An error occurred.");
+    } finally {
+      setDeleteLoading(false);
+      setDeleteRequest(null);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
+      <Toaster position="top-right" />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -114,10 +136,11 @@ export default function MyContributionsPage() {
               <button
                 key={s || `status-${index}`}
                 onClick={() => { setStatusFilter(s); setPage(1); }}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold capitalize border transition cursor-pointer ${statusFilter === s
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
-                  }`}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold capitalize border transition cursor-pointer ${
+                  statusFilter === s
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-blue-400 hover:text-blue-600"
+                }`}
               >
                 {s || "All"}
               </button>
@@ -157,7 +180,7 @@ export default function MyContributionsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/80">
-                  {["#", "Campaign", "Amount", "Creator", "Date", "Status"].map((h) => (
+                  {["#", "Campaign", "Amount", "Creator", "Date", "Status", "Actions"].map((h) => (
                     <th key={h} className="text-left px-5 py-3 font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-xs">{h}</th>
                   ))}
                 </tr>
@@ -179,6 +202,31 @@ export default function MyContributionsPage() {
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
                     </td>
                     <td className="px-5 py-3.5"><StatusBadge status={c.status} /></td>
+                    <td className="px-5 py-3.5">
+                      <div className="flex gap-2">
+                        <button
+                          title="View Details"
+                          onClick={() => setViewDetail(c)}
+                          className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-blue-100 dark:hover:bg-blue-900/40 hover:text-blue-600 transition cursor-pointer"
+                        >
+                          <FiEye size={14} />
+                        </button>
+                        <button
+                          title="Edit Note / Details"
+                          onClick={() => setEditContribution(c)}
+                          className="p-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/40 text-blue-600 hover:text-blue-700 transition cursor-pointer"
+                        >
+                          <FiEdit2 size={14} />
+                        </button>
+                        <button
+                          title="Cancel/Withdraw Contribution"
+                          onClick={() => setDeleteRequest(c)}
+                          className="p-1.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 hover:text-rose-700 transition cursor-pointer"
+                        >
+                          <FiTrash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
                   </motion.tr>
                 ))}
               </tbody>
@@ -199,19 +247,32 @@ export default function MyContributionsPage() {
                   <p className="font-semibold text-sm text-slate-800 dark:text-slate-200 line-clamp-2">{c.campaign_title}</p>
                   <StatusBadge status={c.status} />
                 </div>
-                <div className="flex items-center gap-5">
+                <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[11px] text-slate-400 uppercase font-semibold">Amount</p>
-                    <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{Number(c.Contribution_amount || c.amount || 0).toLocaleString()} cr</p>
+                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">{Number(c.Contribution_amount || c.amount || 0).toLocaleString()} cr</p>
                   </div>
                   <div>
                     <p className="text-[11px] text-slate-400 uppercase font-semibold">Creator</p>
                     <p className="text-sm text-slate-700 dark:text-slate-300">{c.creator_name || "Creator"}</p>
                   </div>
                 </div>
-                <p className="text-xs text-slate-400">
-                  {c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "N/A"}
-                </p>
+                <div className="flex justify-between items-center pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <span className="text-xs text-slate-400">
+                    {c.createdAt ? new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "N/A"}
+                  </span>
+                  <div className="flex gap-2">
+                    <button onClick={() => setViewDetail(c)} className="p-1.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600">
+                      <FiEye size={13} />
+                    </button>
+                    <button onClick={() => setEditContribution(c)} className="p-1.5 rounded bg-blue-50 text-blue-600">
+                      <FiEdit2 size={13} />
+                    </button>
+                    <button onClick={() => setDeleteRequest(c)} className="p-1.5 rounded bg-rose-50 text-rose-600">
+                      <FiTrash2 size={13} />
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
@@ -232,21 +293,6 @@ export default function MyContributionsPage() {
             >
               <FiChevronLeft size={16} />
             </button>
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              const pageNum = i + 1;
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setPage(pageNum)}
-                  className={`w-9 h-9 rounded-xl text-sm font-semibold transition cursor-pointer border ${page === pageNum
-                    ? "bg-blue-600 text-white border-blue-600"
-                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700"
-                    }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
@@ -257,6 +303,40 @@ export default function MyContributionsPage() {
           </div>
         </div>
       )}
+
+      {/* Detail Modal */}
+      <ContributionDetailModal
+        isOpen={!!viewDetail}
+        onClose={() => setViewDetail(null)}
+        contribution={viewDetail}
+      />
+
+      {/* Edit Modal */}
+      {editContribution && (
+        <UpdateContributionModal
+          isOpen={!!editContribution}
+          onClose={() => setEditContribution(null)}
+          contribution={editContribution}
+          session={session}
+          onSuccess={fetchContributions}
+        />
+      )}
+
+      {/* Cancel/Delete Confirm Modal */}
+      <ConfirmModal
+        isOpen={!!deleteRequest}
+        onClose={() => setDeleteRequest(null)}
+        onConfirm={handleDelete}
+        loading={deleteLoading}
+        variant="danger"
+        title="Withdraw Contribution?"
+        description={
+          deleteRequest?.status === "pending"
+            ? `Are you sure you want to cancel your pending contribution of ${Number(deleteRequest?.Contribution_amount || deleteRequest?.amount || 0).toLocaleString()} credits to "${deleteRequest?.campaign_title}"? Your credits will be fully refunded instantly.`
+            : `Are you sure you want to withdraw your contribution of ${Number(deleteRequest?.Contribution_amount || deleteRequest?.amount || 0).toLocaleString()} credits to "${deleteRequest?.campaign_title}"? Reversing this contribution will adjust the creator's credits and campaign statistics.`
+        }
+        confirmText="Withdraw"
+      />
     </div>
   );
 }
