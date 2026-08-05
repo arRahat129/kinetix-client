@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -11,8 +11,8 @@ import { HiOutlineSparkles, HiOutlineRocketLaunch } from "react-icons/hi2";
 import Link from "next/link";
 import { useSession } from "@/lib/auth-client";
 import { getCampaignById } from "@/lib/api/campaign";
+import SupportCampaignModal from "@/components/modals/SupportCampaignModal";
 
-// ── helpers ──────────────────────────────────────────────────────────────
 const CATEGORY_COLORS = {
   Technology: "from-blue-500 to-cyan-500",
   Art: "from-purple-500 to-pink-500",
@@ -38,7 +38,6 @@ function getDeadlineInfo(deadline) {
   return { label: `${days} days left`, urgent: false };
 }
 
-// ── Skeleton ─────────────────────────────────────────────────────────────
 function DetailSkeleton() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-12 animate-pulse space-y-6">
@@ -50,7 +49,6 @@ function DetailSkeleton() {
   );
 }
 
-// ── Stars component ───────────────────────────────────────────────────────
 function StarRating({ value, onChange, readonly = false }) {
   const [hovered, setHovered] = useState(0);
   return (
@@ -77,7 +75,6 @@ function StarRating({ value, onChange, readonly = false }) {
   );
 }
 
-// ── AccessDeniedBanner ────────────────────────────────────────────────────
 function AccessDeniedBanner({ message }) {
   return (
     <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-100 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 text-sm">
@@ -87,7 +84,6 @@ function AccessDeniedBanner({ message }) {
   );
 }
 
-// ── Review Section ────────────────────────────────────────────────────────
 function ReviewSection({ campaign, session }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -106,7 +102,6 @@ function ReviewSection({ campaign, session }) {
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Reviews</h2>
       </div>
 
-      {/* ── Owner view ── */}
       {isOwner && (
         <div className="p-5 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
           <div className="flex items-center gap-2 mb-2">
@@ -114,18 +109,15 @@ function ReviewSection({ campaign, session }) {
             <span className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Your Campaign</span>
           </div>
           <p className="text-sm text-blue-600 dark:text-blue-400">
-            This is your campaign. You can't leave a review on your own project, but you can
-            see what others say below.
+            This is your campaign. You can't leave a review on your own project, but you can see what others say below.
           </p>
         </div>
       )}
 
-      {/* ── Creator (not owner) view ── */}
       {isCreatorNotOwner && (
         <AccessDeniedBanner message="Only Supporters can leave a review on campaigns. Creator accounts cannot submit reviews." />
       )}
 
-      {/* ── Not logged in ── */}
       {!user && (
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3">
           <FiLock className="w-5 h-5 shrink-0" />
@@ -139,7 +131,6 @@ function ReviewSection({ campaign, session }) {
         </div>
       )}
 
-      {/* ── Supporter — write a review ── */}
       {isSupporter && !submitted && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -176,14 +167,11 @@ function ReviewSection({ campaign, session }) {
           <FiCheckCircle className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold">Review submitted!</p>
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
-              Thank you for sharing your feedback.
-            </p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">Thank you for sharing your feedback.</p>
           </div>
         </motion.div>
       )}
 
-      {/* Placeholder reviews list */}
       <div className="mt-6 space-y-4">
         <p className="text-xs text-slate-400 dark:text-slate-500 italic">
           Reviews from other supporters will appear here once submitted.
@@ -193,7 +181,6 @@ function ReviewSection({ campaign, session }) {
   );
 }
 
-// ── Report Section ────────────────────────────────────────────────────────
 const REPORT_REASONS = [
   "Misleading information",
   "Fraudulent campaign",
@@ -220,21 +207,16 @@ function ReportSection({ campaign, session }) {
         <h2 className="text-lg font-bold text-slate-900 dark:text-white">Report Campaign</h2>
       </div>
 
-      {/* ── Owner view ── */}
       {isOwner && (
         <div className="p-5 rounded-2xl border border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
-          <p className="text-sm text-blue-600 dark:text-blue-400">
-            You cannot report your own campaign.
-          </p>
+          <p className="text-sm text-blue-600 dark:text-blue-400">You cannot report your own campaign.</p>
         </div>
       )}
 
-      {/* ── Creator (not owner) view ── */}
       {isCreatorNotOwner && (
         <AccessDeniedBanner message="Only Supporters can report a campaign. Creator accounts do not have access to this feature." />
       )}
 
-      {/* ── Not logged in ── */}
       {!user && (
         <div className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-sm text-slate-500 dark:text-slate-400 flex items-center gap-3">
           <FiLock className="w-5 h-5 shrink-0" />
@@ -248,7 +230,6 @@ function ReportSection({ campaign, session }) {
         </div>
       )}
 
-      {/* ── Supporter — report form ── */}
       {isSupporter && !submitted && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -261,9 +242,7 @@ function ReportSection({ campaign, session }) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-              Reason
-            </label>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Reason</label>
             <select
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -277,9 +256,7 @@ function ReportSection({ campaign, session }) {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
-              Additional Details
-            </label>
+            <label className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">Additional Details</label>
             <textarea
               rows={3}
               value={details}
@@ -309,9 +286,7 @@ function ReportSection({ campaign, session }) {
           <FiCheckCircle className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold">Report submitted!</p>
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
-              Our moderation team will review it shortly.
-            </p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">Our moderation team will review it shortly.</p>
           </div>
         </motion.div>
       )}
@@ -319,15 +294,15 @@ function ReportSection({ campaign, session }) {
   );
 }
 
-// ── Main Detail Page ──────────────────────────────────────────────────────
 export default function CampaignDetailPage() {
   const { id } = useParams();
   const { data: session } = useSession();
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("story");
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
-  useEffect(() => {
+  const fetchCampaign = useCallback(async () => {
     if (!id) return;
     setLoading(true);
     getCampaignById(id)
@@ -335,6 +310,10 @@ export default function CampaignDetailPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    fetchCampaign();
+  }, [fetchCampaign]);
 
   if (loading) return <DetailSkeleton />;
 
@@ -360,6 +339,7 @@ export default function CampaignDetailPage() {
     campaign_image_url,
     funding_goal,
     raised_amount = 0,
+    amount_raised = 0,
     category,
     deadline,
     creatorName,
@@ -368,11 +348,18 @@ export default function CampaignDetailPage() {
     supporters_count = 0,
   } = campaign;
 
+  const actualRaised = Number(raised_amount) || Number(amount_raised) || 0;
   const progress = funding_goal
-    ? Math.min(100, Math.round((raised_amount / funding_goal) * 100))
+    ? Math.min(100, Math.round((actualRaised / funding_goal) * 100))
     : 0;
   const gradient = CATEGORY_COLORS[category] || CATEGORY_COLORS.default;
   const { label: deadlineLabel, urgent } = getDeadlineInfo(deadline);
+
+  const user = session?.user;
+  const isSupporter = user?.role === "Supporter";
+  const isOwner = user?.id && campaign?.userId && user.id === campaign.userId;
+  const isDeadlinePassed = deadline && new Date(deadline) < new Date();
+  const canSupport = (isSupporter || !user) && !isOwner && !isDeadlinePassed;
 
   const TABS = [
     { id: "story", label: "Story" },
@@ -380,10 +367,12 @@ export default function CampaignDetailPage() {
     { id: "report", label: "Report" },
   ];
 
+  const handleSupportSuccess = () => {
+    fetchCampaign();
+  };
+
   return (
     <main className="min-h-screen bg-slate-50 dark:bg-[#060b18] pb-20">
-
-      {/* ── Hero image ── */}
       <div className="relative w-full h-72 sm:h-96 overflow-hidden bg-slate-200 dark:bg-slate-800">
         {campaign_image_url ? (
           <img
@@ -398,7 +387,6 @@ export default function CampaignDetailPage() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
 
-        {/* Back button */}
         <Link
           href="/campaigns"
           className="absolute top-5 left-5 flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-black/30 backdrop-blur-sm border border-white/20 text-white text-xs font-semibold no-underline hover:bg-black/50 transition"
@@ -406,7 +394,6 @@ export default function CampaignDetailPage() {
           <FiChevronLeft size={14} /> All Campaigns
         </Link>
 
-        {/* Category + deadline */}
         <div className="absolute bottom-5 left-5 flex items-center gap-2 flex-wrap">
           {category && (
             <span className={`px-3 py-1 rounded-full text-xs font-bold text-white bg-gradient-to-r ${gradient} shadow`}>
@@ -424,10 +411,7 @@ export default function CampaignDetailPage() {
         </div>
       </div>
 
-      {/* ── Main content ── */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 -mt-6 relative z-10">
-
-        {/* ── Card wrapper ── */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -435,13 +419,10 @@ export default function CampaignDetailPage() {
           className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
         >
           <div className="p-6 sm:p-8">
-
-            {/* Title */}
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight mb-4">
               {campaign_title}
             </h1>
 
-            {/* Creator */}
             <div className="flex items-center gap-3 mb-6">
               {creatorProfileImg ? (
                 <img src={creatorProfileImg} alt={creatorName} className="w-9 h-9 rounded-full object-cover" />
@@ -460,12 +441,11 @@ export default function CampaignDetailPage() {
               </div>
             </div>
 
-            {/* Progress stats */}
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 mb-6">
               <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
                 <div>
                   <p className={`text-2xl font-extrabold bg-gradient-to-r ${gradient} bg-clip-text text-transparent`}>
-                    {Number(raised_amount).toLocaleString()} credits
+                    {actualRaised.toLocaleString()} credits
                   </p>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     raised of{" "}
@@ -498,15 +478,36 @@ export default function CampaignDetailPage() {
               </div>
             </div>
 
-            {/* Support CTA — only for Supporters or guests */}
-            {(!session?.user || session?.user?.role === "Supporter") && (
-              <button className={`w-full py-3.5 rounded-xl text-white font-bold text-sm bg-gradient-to-r ${gradient} hover:opacity-90 active:scale-[0.99] transition-all shadow-lg mb-6`}>
-                <HiOutlineRocketLaunch className="inline w-4 h-4 mr-2 mb-0.5" />
+            {canSupport && (
+              <button
+                onClick={() => {
+                  if (!user) {
+                    window.location.href = "/login";
+                    return;
+                  }
+                  setSupportModalOpen(true);
+                }}
+                className={`w-full py-3.5 rounded-xl text-white font-bold text-sm bg-gradient-to-r ${gradient} hover:opacity-90 active:scale-[0.99] transition-all shadow-lg mb-6 flex items-center justify-center gap-2 cursor-pointer`}
+              >
+                <HiOutlineRocketLaunch className="w-4 h-4" />
                 Support This Campaign
               </button>
             )}
 
-            {/* ── Tabs ── */}
+            {isDeadlinePassed && (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 text-sm mb-6">
+                <FiClock className="w-5 h-5 text-slate-400 shrink-0" />
+                <span>This campaign has ended and is no longer accepting contributions.</span>
+              </div>
+            )}
+
+            {isOwner && (
+              <div className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900 text-sm mb-6">
+                <HiOutlineRocketLaunch className="w-5 h-5 text-blue-500 shrink-0" />
+                <span className="text-blue-700 dark:text-blue-300 font-medium">This is your campaign. Supporters can back it once approved.</span>
+              </div>
+            )}
+
             <div className="flex border-b border-slate-200 dark:border-slate-800 gap-0 mb-6">
               {TABS.map((tab) => (
                 <button
@@ -522,7 +523,6 @@ export default function CampaignDetailPage() {
               ))}
             </div>
 
-            {/* ── Tab content ── */}
             <AnimatePresence mode="wait">
               {activeTab === "story" && (
                 <motion.div
@@ -569,6 +569,14 @@ export default function CampaignDetailPage() {
           </div>
         </motion.div>
       </div>
+
+      <SupportCampaignModal
+        isOpen={supportModalOpen}
+        onClose={() => setSupportModalOpen(false)}
+        campaign={campaign}
+        session={session}
+        onSuccess={handleSupportSuccess}
+      />
     </main>
   );
 }

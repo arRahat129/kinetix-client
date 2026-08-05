@@ -23,17 +23,16 @@ export default function DashboardLinks({ onNavClick }) {
   const { data: session } = useSession();
   const role = session?.user?.role?.toLowerCase() || "supporter";
 
-  // Navigation Links definition per role strictly following user specification
   const roleLinks = {
     supporter: [
-      { href: "/", label: "Home", icon: FiHome },
+      { href: "/dashboard/supporter", label: "Home", icon: FiHome },
       { href: "/campaigns", label: "Explore Campaigns", icon: FiCompass },
       { href: "/dashboard/supporter/contributions", label: "My Contributions", icon: FiHeart },
       { href: "/dashboard/supporter/credits", label: "Purchase Credit", icon: FiCreditCard },
       { href: "/dashboard/supporter/payment-history", label: "Payment History", icon: FiFileText },
     ],
     creator: [
-      { href: "/", label: "Home", icon: FiHome },
+      { href: "/dashboard/creator", label: "Home", icon: FiHome },
       { href: "/dashboard/creator/add-campaign", label: "Add New Campaign", icon: FiPlusSquare },
       { href: "/dashboard/creator/my-campaigns", label: "My Campaigns", icon: FiGrid },
       { href: "/dashboard/creator/withdrawals", label: "Withdrawals", icon: FiTrendingUp },
@@ -50,6 +49,13 @@ export default function DashboardLinks({ onNavClick }) {
 
   const currentLinks = roleLinks[role] || roleLinks.supporter;
 
+  const isActive = (href) => {
+    if (href === "/dashboard/supporter" || href === "/dashboard/creator") {
+      return pathname === href;
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
+
   return (
     <div className="flex-1 overflow-y-auto px-3 py-4 space-y-1">
       <p className="px-3 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
@@ -57,7 +63,7 @@ export default function DashboardLinks({ onNavClick }) {
       </p>
       {currentLinks.map((link) => {
         const Icon = link.icon;
-        const isActive = pathname === link.href;
+        const active = isActive(link.href);
 
         return (
           <Link
@@ -65,12 +71,12 @@ export default function DashboardLinks({ onNavClick }) {
             href={link.href}
             onClick={onNavClick}
             className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs md:text-sm font-medium transition-all no-underline ${
-              isActive
+              active
                 ? "bg-blue-600 text-white font-semibold shadow-sm shadow-blue-500/20"
                 : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white"
             }`}
           >
-            <Icon className={`text-base shrink-0 ${isActive ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
+            <Icon className={`text-base shrink-0 ${active ? "text-white" : "text-slate-500 dark:text-slate-400"}`} />
             <span className="truncate">{link.label}</span>
           </Link>
         );
