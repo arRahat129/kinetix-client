@@ -89,11 +89,10 @@ export default function CampaignCard({ campaign, index = 0 }) {
 
             {/* Deadline badge */}
             <span
-              className={`absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border backdrop-blur-sm ${
-                urgent
-                  ? "bg-red-500/90 border-red-400 text-white"
-                  : "bg-slate-900/70 border-slate-700 text-slate-200"
-              }`}
+              className={`absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border backdrop-blur-sm ${urgent
+                ? "bg-red-500/90 border-red-400 text-white"
+                : "bg-slate-900/70 border-slate-700 text-slate-200"
+                }`}
             >
               <FiClock size={11} />
               {deadlineLabel}
@@ -126,13 +125,12 @@ export default function CampaignCard({ campaign, index = 0 }) {
                   </span>{" "}
                   <span className="text-slate-400 dark:text-slate-500">credits raised</span>
                 </span>
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                  progress >= 100
-                    ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400"
-                    : progress >= 50
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${progress >= 100
+                  ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400"
+                  : progress >= 50
                     ? "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
-                }`}>
+                  }`}>
                   {progress}%
                 </span>
               </div>

@@ -1,9 +1,15 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { FiLock, FiHome, FiLogIn } from 'react-icons/fi';
 
-export default function UnauthorizedPage() {
+function UnauthorizedContent() {
+    const searchParams = useSearchParams();
+    const redirectTo = searchParams.get('redirectTo') || searchParams.get('callbackURL') || '';
+    const signInHref = `/auth/signin${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`;
+
     return (
         <div className="min-h-screen bg-[#060b18] flex items-center justify-center px-4 relative overflow-hidden">
             {/* Ambient background glows */}
@@ -43,7 +49,7 @@ export default function UnauthorizedPage() {
                 {/* Actions */}
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                     <Link
-                        href="/signin"
+                        href={signInHref}
                         className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold text-sm shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-200"
                     >
                         <FiLogIn className="w-4 h-4" />
@@ -62,12 +68,24 @@ export default function UnauthorizedPage() {
                 <div className="mt-14 pt-8 border-t border-white/5">
                     <p className="text-slate-600 text-xs">
                         Already have an account?{' '}
-                        <Link href="/signin" className="text-blue-400 hover:text-blue-300 transition-colors">
+                        <Link href={signInHref} className="text-blue-400 hover:text-blue-300 transition-colors">
                             Sign in here
                         </Link>
                     </p>
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function UnauthorizedPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-[#060b18] flex items-center justify-center text-slate-400 text-sm">
+                Loading...
+            </div>
+        }>
+            <UnauthorizedContent />
+        </Suspense>
     );
 }

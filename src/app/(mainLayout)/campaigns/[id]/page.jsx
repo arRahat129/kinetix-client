@@ -187,7 +187,7 @@ function ReviewSection({ campaign, session }) {
           <FiLock className="w-5 h-5 shrink-0" />
           <span>
             Please{" "}
-            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
+            <Link href={`/auth/signin?redirectTo=${encodeURIComponent(`/campaigns/${campaign?._id}`)}`} className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
               sign in
             </Link>{" "}
             as a Supporter to leave a review.
@@ -354,7 +354,7 @@ function ReportSection({ campaign, session }) {
           <FiLock className="w-5 h-5 shrink-0" />
           <span>
             Please{" "}
-            <Link href="/login" className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
+            <Link href={`/auth/signin?redirectTo=${encodeURIComponent(`/campaigns/${campaign?._id}`)}`} className="text-blue-600 dark:text-blue-400 font-semibold underline-offset-2 hover:underline">
               sign in
             </Link>{" "}
             as a Supporter to report this campaign.
@@ -428,11 +428,18 @@ function ReportSection({ campaign, session }) {
 
 export default function CampaignDetailPage() {
   const { id } = useParams();
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session, isPending: isSessionPending } = useSession();
   const [campaign, setCampaign] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("story");
   const [supportModalOpen, setSupportModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isSessionPending && !session?.user) {
+      router.push(`/unauthorized?redirectTo=${encodeURIComponent(`/campaigns/${id}`)}`);
+    }
+  }, [isSessionPending, session?.user, id, router]);
 
   const fetchCampaign = useCallback(async () => {
     if (!id) return;
@@ -444,17 +451,19 @@ export default function CampaignDetailPage() {
   }, [id]);
 
   useEffect(() => {
-    fetchCampaign();
-  }, [fetchCampaign]);
+    if (session?.user) {
+      fetchCampaign();
+    }
+  }, [fetchCampaign, session?.user]);
 
-  if (loading) return <DetailSkeleton />;
+  if (loading || isSessionPending || !session?.user) return <DetailSkeleton />;
 
   if (!campaign || campaign.message) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4 text-center px-4">
         <HiOutlineRocketLaunch className="w-14 h-14 text-slate-300 dark:text-slate-700" />
         <h2 className="text-xl font-bold text-slate-800 dark:text-white">Campaign not found</h2>
-        <p className="text-sm text-slate-500">It may have been removed or doesn't exist.</p>
+        <p className="text-sm text-slate-500">It may have been removed or doesn&apos;t exist.</p>
         <Link
           href="/campaigns"
           className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition no-underline"
@@ -504,7 +513,7 @@ export default function CampaignDetailPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-[#060b18] pb-20">
+    <main className="min-h-screen pb-20">
       <div className="relative w-full h-72 sm:h-96 overflow-hidden bg-slate-200 dark:bg-slate-800">
         {campaign_image_url ? (
           <img
@@ -548,7 +557,7 @@ export default function CampaignDetailPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
+          className="bg-white dark:bg-black rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden"
         >
           <div className="p-6 sm:p-8">
             <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white leading-tight mb-4">

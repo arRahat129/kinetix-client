@@ -29,7 +29,7 @@ export default function DashboardSidebar() {
   return (
     <>
       {/* Mobile Header Bar with Drawer Toggle Button */}
-      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-white/90 dark:bg-slate-950/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+      <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsOpen(true)}
@@ -62,9 +62,8 @@ export default function DashboardSidebar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
+        className={`fixed top-0 bottom-0 left-0 z-50 w-64 bg-blue-50 dark:bg-blue-950 border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
       >
         {/* Top Logo & Close Button */}
         <div className="p-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800">

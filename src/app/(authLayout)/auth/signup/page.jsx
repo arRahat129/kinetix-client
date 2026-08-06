@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,7 +8,7 @@ import { signUp, signIn } from "@/lib/auth-client";
 import { uploadToImgBB } from "@/lib/imgbb";
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaUser, FaCloudUploadAlt, FaArrowRight, FaIdBadge, FaCoins, FaTrash } from "react-icons/fa";
 
-export default function SignUpPage() {
+function SignUpForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirectTo") || searchParams.get("callbackURL") || "/dashboard";
@@ -330,9 +330,9 @@ export default function SignUpPage() {
             <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="w-full bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-medium py-2 px-4 rounded-xl text-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 transition-all"
+                className="w-full bg-blue-100 dark:bg-blue-950 hover:bg-blue-200 dark:hover:bg-blue-800 text-slate-800 dark:text-white font-medium py-2.5 px-4 rounded-xl text-sm border border-blue-200 dark:border-blue-800 flex items-center justify-center gap-2 transition-all"
             >
-                <FaGoogle className="text-red-500" />
+                <FaGoogle className="text-blue-500" />
                 <span>Google</span>
             </button>
 
@@ -348,5 +348,17 @@ export default function SignUpPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function SignUpPage() {
+    return (
+        <Suspense fallback={
+            <div className="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+                <p className="text-slate-400 text-sm">Loading sign up...</p>
+            </div>
+        }>
+            <SignUpForm />
+        </Suspense>
     );
 }

@@ -23,7 +23,7 @@ const slides = [
     subtitle:
       "Turn your creative spark into a movement. Set your goal, share your story, and watch your community bring it to life — one contribution at a time.",
     cta: "Start a Campaign",
-    ctaLink: "/register",
+    ctaLink: "/auth/signup",
     gradientClass: "from-purple-500 to-blue-400",
   },
   {
@@ -33,7 +33,7 @@ const slides = [
     subtitle:
       "Whether it is a solar-powered invention or a local art project, your support makes the difference. Be the backer behind the next big breakthrough.",
     cta: "Get Started Free",
-    ctaLink: "/register",
+    ctaLink: "/auth/signup",
     gradientClass: "from-cyan-500 to-blue-400",
   },
 ];
@@ -61,11 +61,10 @@ export default function HeroSection() {
           return (
             <div
               key={index}
-              className={`transition-all duration-700 ease-in-out ${
-                isActive
+              className={`transition-all duration-700 ease-in-out ${isActive
                   ? "relative opacity-100 pointer-events-auto visible block"
                   : "absolute inset-0 opacity-0 pointer-events-none invisible hidden"
-              }`}
+                }`}
             >
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-blue-100 dark:bg-slate-800 border border-blue-200 dark:border-slate-700 text-blue-600 dark:text-blue-400 text-sm font-medium mb-7 shadow-xs">
@@ -116,11 +115,10 @@ export default function HeroSection() {
             <button
               key={idx}
               onClick={() => setCurrentSlide(idx)}
-              className={`h-2.5 rounded-full border-none cursor-pointer transition-all duration-300 ${
-                idx === currentSlide
+              className={`h-2.5 rounded-full border-none cursor-pointer transition-all duration-300 ${idx === currentSlide
                   ? "w-8 bg-blue-600"
                   : "w-2.5 bg-slate-300 dark:bg-slate-700 hover:bg-slate-400 dark:hover:bg-slate-600"
-              }`}
+                }`}
               aria-label={`Go to slide ${idx + 1}`}
             />
           ))}

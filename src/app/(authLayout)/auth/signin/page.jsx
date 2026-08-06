@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "@/lib/auth-client";
 import { FaEye, FaEyeSlash, FaGoogle, FaEnvelope, FaLock, FaArrowRight } from "react-icons/fa";
 
-export default function SignInPage() {
+function SignInForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get("redirectTo") || searchParams.get("callbackURL") || "/dashboard";
@@ -145,9 +145,9 @@ export default function SignInPage() {
             <button
                 type="button"
                 onClick={handleGoogleSignIn}
-                className="w-full bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-800 dark:text-white font-medium py-2.5 px-4 rounded-xl text-sm border border-slate-200 dark:border-slate-800 flex items-center justify-center gap-2 transition-all"
+                className="w-full bg-blue-100 dark:bg-blue-950 hover:bg-blue-200 dark:hover:bg-blue-800 text-slate-800 dark:text-white font-medium py-2.5 px-4 rounded-xl text-sm border border-blue-200 dark:border-blue-800 flex items-center justify-center gap-2 transition-all"
             >
-                <FaGoogle className="text-red-500" />
+                <FaGoogle className="text-blue-500" />
                 <span>Google</span>
             </button>
 
@@ -155,8 +155,8 @@ export default function SignInPage() {
             <div className="mt-6 pt-5 border-t border-slate-200 dark:border-slate-800/80 text-center">
                 <p className="text-xs text-slate-600 dark:text-slate-400">
                     Don&apos;t have an account?{" "}
-                    <Link 
-                        href={`/auth/signup${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`} 
+                    <Link
+                        href={`/auth/signup${redirectTo ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`}
                         className="text-blue-600 dark:text-blue-400 font-semibold hover:underline"
                     >
                         Create an Account
@@ -164,5 +164,17 @@ export default function SignInPage() {
                 </p>
             </div>
         </div>
+    );
+}
+
+export default function SignInPage() {
+    return (
+        <Suspense fallback={
+            <div className="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+                <p className="text-slate-400 text-sm">Loading sign in...</p>
+            </div>
+        }>
+            <SignInForm />
+        </Suspense>
     );
 }

@@ -17,7 +17,7 @@ const stats = [
     suffix: "+",
     label: "Campaigns Funded",
     colorClass: "text-blue-500 dark:text-blue-400",
-    bgClass: "bg-blue-50 dark:bg-slate-900",
+    bgClass: "bg-blue-50 dark:bg-blue-900",
     borderClass: "border-blue-200 dark:border-blue-800",
   },
   {
@@ -27,7 +27,7 @@ const stats = [
     prefix: "",
     label: "Credits Raised",
     colorClass: "text-cyan-500 dark:text-cyan-400",
-    bgClass: "bg-cyan-50 dark:bg-slate-900",
+    bgClass: "bg-cyan-50 dark:bg-cyan-900",
     borderClass: "border-cyan-200 dark:border-cyan-800",
     format: true,
   },
@@ -37,7 +37,7 @@ const stats = [
     suffix: "+",
     label: "Active Supporters",
     colorClass: "text-purple-500 dark:text-purple-400",
-    bgClass: "bg-purple-50 dark:bg-slate-900",
+    bgClass: "bg-purple-50 dark:bg-purple-900",
     borderClass: "border-purple-200 dark:border-purple-800",
   },
   {
@@ -46,7 +46,7 @@ const stats = [
     suffix: "%",
     label: "Success Rate",
     colorClass: "text-emerald-500 dark:text-emerald-400",
-    bgClass: "bg-emerald-50 dark:bg-slate-900",
+    bgClass: "bg-emerald-50 dark:bg-emerald-900",
     borderClass: "border-emerald-200 dark:border-emerald-800",
   },
 ];

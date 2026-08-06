@@ -26,7 +26,7 @@ const SORT_OPTIONS = [
 
 function CampaignCardSkeleton() {
     return (
-        <div className="h-[380px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-pulse">
+        <div className="h-[380px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-black animate-pulse">
             <div className="h-48 bg-slate-200 dark:bg-slate-800" />
             <div className="p-5 space-y-3">
                 <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded-lg w-4/5" />
@@ -114,7 +114,7 @@ export default function ExploreCampaignsPage() {
     ].filter(Boolean).length;
 
     return (
-        <main className="min-h-screen bg-slate-50 dark:bg-[#060b18] transition-colors">
+        <main className="min-h-screen transition-colors">
 
             {/* ── Hero Banner ─────────────────────────────── */}
             <section className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 py-20 px-6">
@@ -182,8 +182,8 @@ export default function ExploreCampaignsPage() {
                                     key={cat}
                                     onClick={() => handleCategoryClick(cat)}
                                     className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-all ${active
-                                            ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25"
-                                            : "bg-transparent border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
+                                        ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25"
+                                        : "bg-transparent border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
                                         }`}
                                 >
                                     {cat}
@@ -198,12 +198,12 @@ export default function ExploreCampaignsPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     {/* Result count */}
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm">
                         {loading ? (
                             <span className="inline-block w-24 h-4 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
                         ) : (
                             <>
-                                Showing <span className="font-semibold text-slate-900 dark:text-white">{campaigns.length}</span>{" "}
+                                Showing <span className="font-semibold text-black dark:text-white">{campaigns.length}</span>{" "}
                                 of <span className="font-semibold text-slate-900 dark:text-white">{total}</span> campaigns
                             </>
                         )}
@@ -214,8 +214,8 @@ export default function ExploreCampaignsPage() {
                         <button
                             onClick={() => setShowFilters((v) => !v)}
                             className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all ${showFilters || activeFiltersCount > 0
-                                    ? "bg-blue-600 border-blue-600 text-white"
-                                    : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-400"
+                                ? "bg-blue-600 border-blue-600 text-white"
+                                : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-400"
                                 }`}
                         >
                             <SlidersHorizontal size={13} />
@@ -349,8 +349,8 @@ export default function ExploreCampaignsPage() {
                                             key={p}
                                             onClick={() => setPage(p)}
                                             className={`w-9 h-9 rounded-xl text-sm font-semibold border transition-all ${page === p
-                                                    ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25"
-                                                    : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600"
+                                                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/25"
+                                                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:border-blue-400 hover:text-blue-600"
                                                 }`}
                                         >
                                             {p}

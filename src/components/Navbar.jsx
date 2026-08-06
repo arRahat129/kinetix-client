@@ -383,7 +383,7 @@ function NavLink({ href, label, currentPath }) {
       href={href}
       className={`h-10 px-3.5 flex items-center text-sm font-medium rounded-lg transition-colors no-underline ${isActive
         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 font-semibold"
-        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
         }`}
     >
       {label}
@@ -398,9 +398,9 @@ function MobileNavLink({ href, label, currentPath, onClick }) {
     <Link
       href={href}
       onClick={onClick}
-      className={`h-11 px-4 flex items-center text-base font-medium rounded-lg transition-colors no-underline ${isActive
+      className={`h-11 px-4 flex items-center font-medium rounded-lg transition-colors no-underline ${isActive
         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950 font-semibold"
-        : "text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+        : "text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
         }`}
     >
       {label}
