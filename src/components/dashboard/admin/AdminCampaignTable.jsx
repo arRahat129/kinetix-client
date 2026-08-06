@@ -3,7 +3,7 @@
 import React from 'react';
 import { FiTrash2, FiEye, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
 
-export const AdminCampaignTable = ({ campaigns, onView, onApprove, onReject, onDelete }) => {
+export const AdminCampaignTable = ({ campaigns, onView, onApprove, onReject, onDelete, highlightId }) => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'approved':
@@ -43,8 +43,18 @@ export const AdminCampaignTable = ({ campaigns, onView, onApprove, onReject, onD
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                    {campaigns.map((item) => (
-                        <tr key={item._id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                    {campaigns.map((item) => {
+                        const isHighlighted = highlightId && (item._id === highlightId || String(item._id) === String(highlightId));
+                        return (
+                            <tr
+                                key={item._id}
+                                id={`campaign-row-${item._id}`}
+                                className={`transition-all duration-500 ${
+                                    isHighlighted
+                                        ? 'bg-rose-500/10 dark:bg-rose-950/40 border-2 border-rose-500 shadow-xl animate-pulse'
+                                        : 'hover:bg-gray-50/50 dark:hover:bg-gray-800/30'
+                                }`}
+                            >
                             <td className="px-6 py-4">
                                 <div className="flex items-center gap-3">
                                     {item.campaign_image_url ? (
@@ -121,7 +131,8 @@ export const AdminCampaignTable = ({ campaigns, onView, onApprove, onReject, onD
                                 </div>
                             </td>
                         </tr>
-                    ))}
+                    );
+                })}
                 </tbody>
             </table>
         </div>

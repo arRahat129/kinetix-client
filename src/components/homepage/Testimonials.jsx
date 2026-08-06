@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
@@ -8,55 +9,42 @@ import { motion } from "framer-motion";
 import { FiStar } from "react-icons/fi";
 import { HiOutlineChatBubbleLeftRight } from "react-icons/hi2";
 
-const testimonials = [
-  {
-    name: "Sarah Mitchell",
-    role: "Campaign Creator",
-    photo:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-    quote:
-      "KINETIX helped me raise over 15,000 credits for my solar energy project in just 3 weeks. The platform is intuitive and the supporter community is incredibly generous.",
-    rating: 5,
-  },
-  {
-    name: "James Rodriguez",
-    role: "Supporter",
-    photo:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    quote:
-      "I have backed 12 campaigns so far and every single one delivered on their promises. The transparency and trust built into KINETIX makes contributing feel safe and rewarding.",
-    rating: 5,
-  },
-  {
-    name: "Priya Sharma",
-    role: "Campaign Creator",
-    photo:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-    quote:
-      "From idea to fully funded in under a month — KINETIX gave me the platform and the community to make my documentary dream a reality. Could not recommend it more.",
-    rating: 5,
-  },
-  {
-    name: "Alex Chen",
-    role: "Supporter",
-    photo:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    quote:
-      "The credit system is brilliant. I can support multiple projects without worrying about complex payment processes. Simple, elegant, and effective — that is KINETIX.",
-    rating: 5,
-  },
-  {
-    name: "Fatima Al-Rashid",
-    role: "Campaign Creator",
-    photo:
-      "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop&crop=face",
-    quote:
-      "My health awareness campaign exceeded its goal by 200 percent thanks to KINETIX. The notification system kept my supporters engaged throughout the entire journey.",
-    rating: 5,
-  },
-];
+/** Map a DB review into the shape TestimonialCard expects */
+function mapReviewToTestimonial(review) {
+  return {
+    name: review.userName || "Supporter",
+    role: review.campaignName ? `Supporter — ${review.campaignName}` : "Supporter",
+    photo: review.userImage || "",
+    quote: review.comment || "",
+    rating: review.rating || 5,
+  };
+}
 
 export default function Testimonials() {
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchReviews() {
+      try {
+        // Use the same-origin Next.js proxy route to avoid CORS issues
+        const response = await fetch("/api/reviews/featured", { cache: "no-store" });
+        if (response.ok) {
+          const json = await response.json();
+          const reviews = json?.data;
+          if (Array.isArray(reviews) && reviews.length > 0) {
+            setTestimonials(reviews.map(mapReviewToTestimonial));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch testimonials:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchReviews();
+  }, []);
+
   return (
     <section className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -84,32 +72,90 @@ export default function Testimonials() {
           </p>
         </motion.div>
 
-        {/* Testimonial Slider */}
+        {/* Testimonial Slider or States */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <Swiper
-            modules={[Autoplay, Pagination]}
-            autoplay={{ delay: 4000, disableOnInteraction: false }}
-            pagination={{ clickable: true }}
-            loop={true}
-            spaceBetween={24}
-            breakpoints={{
-              0: { slidesPerView: 1 },
-              768: { slidesPerView: 2 },
-              1024: { slidesPerView: 3 },
-            }}
-            className="pb-12"
-          >
-            {testimonials.map((t, index) => (
-              <SwiperSlide key={index}>
-                <TestimonialCard testimonial={t} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          {loading ? (
+            /* Skeleton */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="h-52 rounded-2xl bg-slate-100 dark:bg-slate-800/60 animate-pulse"
+                />
+              ))}
+            </div>
+          ) : testimonials.length === 0 ? (
+            /* Empty State */
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col items-center justify-center gap-5 py-16 px-8 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/40"
+            >
+              <div className="relative">
+                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-slate-800 flex items-center justify-center">
+                  <HiOutlineChatBubbleLeftRight className="w-8 h-8 text-blue-400 dark:text-blue-500" />
+                </div>
+                <div className="absolute -top-1 -right-1 flex gap-0.5">
+                  {[1, 2, 3].map((i) => (
+                    <FiStar
+                      key={i}
+                      className="w-3.5 h-3.5 text-amber-400 fill-amber-400"
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="text-center max-w-sm">
+                <p className="text-base font-bold text-slate-700 dark:text-slate-200 mb-1.5">
+                  No reviews yet
+                </p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Be one of the first to support a campaign and share your
+                  experience. Featured reviews from the community will appear
+                  here.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-blue-50 dark:bg-slate-800 border border-blue-100 dark:border-slate-700">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <FiStar
+                    key={i}
+                    className="w-4 h-4 text-slate-300 dark:text-slate-600"
+                  />
+                ))}
+                <span className="ml-1.5 text-xs text-slate-400 dark:text-slate-500 font-medium">
+                  Waiting for the first review
+                </span>
+              </div>
+            </motion.div>
+          ) : (
+            /* Real Reviews */
+            <Swiper
+              modules={[Autoplay, Pagination]}
+              autoplay={{ delay: 4000, disableOnInteraction: false }}
+              pagination={{ clickable: true }}
+              loop={testimonials.length > 3}
+              spaceBetween={24}
+              breakpoints={{
+                0: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1024: { slidesPerView: 3 },
+              }}
+              className="pb-12"
+            >
+              {testimonials.map((t, index) => (
+                <SwiperSlide key={index}>
+                  <TestimonialCard testimonial={t} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
         </motion.div>
       </div>
     </section>
@@ -121,11 +167,15 @@ function TestimonialCard({ testimonial }) {
     <div className="h-full flex flex-col rounded-2xl p-7 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300">
       {/* Stars */}
       <div className="flex gap-1 mb-4">
-        {Array.from({ length: testimonial.rating }).map((_, i) => (
+        {[1, 2, 3, 4, 5].map((star) => (
           <FiStar
-            key={i}
+            key={star}
             size={16}
-            className="fill-amber-400 text-amber-400"
+            className={
+              star <= testimonial.rating
+                ? "fill-amber-400 text-amber-400"
+                : "text-slate-200 dark:text-slate-700"
+            }
           />
         ))}
       </div>
@@ -137,11 +187,25 @@ function TestimonialCard({ testimonial }) {
 
       {/* Author */}
       <div className="flex items-center gap-3">
-        <img
-          src={testimonial.photo}
-          alt={testimonial.name}
-          className="w-11 h-11 rounded-xl object-cover border-2 border-blue-200 dark:border-blue-900 shrink-0"
-        />
+        {testimonial.photo ? (
+          <img
+            src={testimonial.photo}
+            alt={testimonial.name}
+            className="w-11 h-11 rounded-xl object-cover border-2 border-blue-200 dark:border-blue-900 shrink-0"
+            onError={(e) => {
+              e.target.style.display = "none";
+              e.target.nextSibling.style.display = "flex";
+            }}
+          />
+        ) : null}
+        <div
+          className="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 items-center justify-center text-white font-bold text-sm shrink-0"
+          style={{
+            display: testimonial.photo ? "none" : "flex",
+          }}
+        >
+          {(testimonial.name || "?")[0].toUpperCase()}
+        </div>
         <div>
           <p className="text-slate-900 dark:text-white font-semibold text-sm">
             {testimonial.name}

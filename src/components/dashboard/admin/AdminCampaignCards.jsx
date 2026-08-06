@@ -3,7 +3,7 @@
 import React from 'react';
 import { FiTrash2, FiEye, FiCheckCircle, FiXCircle, FiClock } from 'react-icons/fi';
 
-export const AdminCampaignCards = ({ campaigns, onView, onApprove, onReject, onDelete }) => {
+export const AdminCampaignCards = ({ campaigns, onView, onApprove, onReject, onDelete, highlightId }) => {
     const getStatusBadge = (status) => {
         switch (status) {
             case 'approved':
@@ -29,11 +29,18 @@ export const AdminCampaignCards = ({ campaigns, onView, onApprove, onReject, onD
 
     return (
         <div className="lg:hidden grid grid-cols-1 md:grid-cols-2 gap-4">
-            {campaigns.map((item) => (
-                <div
-                    key={item._id}
-                    className="p-5 rounded-2xl border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 backdrop-blur-xl shadow-lg flex flex-col justify-between hover:border-indigo-500/40 transition-all"
-                >
+            {campaigns.map((item) => {
+                const isHighlighted = highlightId && (item._id === highlightId || String(item._id) === String(highlightId));
+                return (
+                    <div
+                        key={item._id}
+                        id={`campaign-card-${item._id}`}
+                        className={`p-5 rounded-2xl border backdrop-blur-xl shadow-lg flex flex-col justify-between transition-all duration-500 ${
+                            isHighlighted
+                                ? 'border-2 border-rose-500 bg-rose-500/10 dark:bg-rose-950/40 ring-4 ring-rose-500/20 animate-pulse'
+                                : 'border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 hover:border-indigo-500/40'
+                        }`}
+                    >
                     <div>
                         <div className="flex items-start justify-between gap-3 mb-3">
                             <div className="flex items-center gap-3">
@@ -112,8 +119,9 @@ export const AdminCampaignCards = ({ campaigns, onView, onApprove, onReject, onD
                             </button>
                         </div>
                     </div>
-                </div>
-            ))}
+                    </div>
+                );
+            })}
         </div>
     );
 };

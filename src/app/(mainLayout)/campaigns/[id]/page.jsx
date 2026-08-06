@@ -1,16 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FiClock, FiUsers, FiTarget, FiFlag, FiStar,
-  FiChevronLeft, FiAlertTriangle, FiCheckCircle, FiLock
+  FiChevronLeft, FiAlertTriangle, FiCheckCircle, FiLock, FiLoader
 } from "react-icons/fi";
 import { HiOutlineSparkles, HiOutlineRocketLaunch } from "react-icons/hi2";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import { useSession } from "@/lib/auth-client";
 import { getCampaignById } from "@/lib/api/campaign";
+import { createReport } from "@/lib/actions/reports";
+import { createReview } from "@/lib/actions/reviews";
+import { getReviewsByCampaignId } from "@/lib/api/reviews";
 import SupportCampaignModal from "@/components/modals/SupportCampaignModal";
 
 const CATEGORY_COLORS = {
@@ -87,13 +91,73 @@ function AccessDeniedBanner({ message }) {
 function ReviewSection({ campaign, session }) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [reviews, setReviews] = useState([]);
+  const [fetchingReviews, setFetchingReviews] = useState(true);
 
   const user = session?.user;
   const role = user?.role;
   const isOwner = user?.id && campaign?.userId && user.id === campaign.userId;
   const isSupporter = role === "Supporter";
   const isCreatorNotOwner = role === "Creator" && !isOwner;
+
+  const fetchReviews = useCallback(async () => {
+    if (!campaign?._id) return;
+    setFetchingReviews(true);
+    try {
+      const res = await getReviewsByCampaignId(campaign._id);
+      if (res?.data) {
+        setReviews(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+    } finally {
+      setFetchingReviews(false);
+    }
+  }, [campaign?._id]);
+
+  useEffect(() => {
+    fetchReviews();
+  }, [fetchReviews]);
+
+  const handleSubmitReview = async () => {
+    if (rating === 0 || !comment.trim() || loading) return;
+    setLoading(true);
+    try {
+      const payload = {
+        userId: user?.id || user?._id || null,
+        userName: user?.name || "Anonymous Supporter",
+        userEmail: user?.email || "",
+        userImage: user?.image || "",
+        campaignId: campaign?._id || "",
+        campaignName: campaign?.campaign_title || "",
+        campaignImage: campaign?.campaign_image_url || "",
+        creatorId: campaign?.userId || null,
+        creatorName: campaign?.creatorName || "",
+        creatorEmail: campaign?.creatorEmail || "",
+        creatorImage: campaign?.creatorProfileImg || "",
+        rating,
+        comment,
+      };
+
+      const res = await createReview(payload);
+      if (res?.success) {
+        toast.success("Review submitted successfully!");
+        setSubmitted(true);
+        setRating(0);
+        setComment("");
+        fetchReviews();
+      } else {
+        toast.error(res?.message || "Failed to submit review");
+      }
+    } catch (err) {
+      console.error("Submit review error:", err);
+      toast.error("An error occurred while submitting your review.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="mt-10">
@@ -109,7 +173,7 @@ function ReviewSection({ campaign, session }) {
             <span className="font-semibold text-blue-700 dark:text-blue-300 text-sm">Your Campaign</span>
           </div>
           <p className="text-sm text-blue-600 dark:text-blue-400">
-            This is your campaign. You can't leave a review on your own project, but you can see what others say below.
+            This is your campaign. You can't leave a review on your own project, but you can see what supporters say below.
           </p>
         </div>
       )}
@@ -131,11 +195,11 @@ function ReviewSection({ campaign, session }) {
         </div>
       )}
 
-      {isSupporter && !submitted && (
+      {isSupporter && (
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4"
+          className="p-5 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4 mb-6"
         >
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
             Share your thoughts about this campaign:
@@ -149,33 +213,61 @@ function ReviewSection({ campaign, session }) {
             className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm text-slate-800 dark:text-slate-200 outline-none focus:ring-2 focus:ring-blue-500/30 resize-none"
           />
           <button
-            onClick={() => rating > 0 && comment.trim() && setSubmitted(true)}
-            disabled={rating === 0 || !comment.trim()}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
+            onClick={handleSubmitReview}
+            disabled={rating === 0 || !comment.trim() || loading}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
           >
+            {loading ? <FiLoader className="animate-spin w-4 h-4" /> : null}
             Submit Review
           </button>
         </motion.div>
       )}
 
-      {isSupporter && submitted && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.97 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="p-5 rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 flex items-center gap-3 text-emerald-700 dark:text-emerald-300 text-sm"
-        >
-          <FiCheckCircle className="w-5 h-5 shrink-0" />
-          <div>
-            <p className="font-semibold">Review submitted!</p>
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">Thank you for sharing your feedback.</p>
-          </div>
-        </motion.div>
-      )}
-
+      {/* Review List */}
       <div className="mt-6 space-y-4">
-        <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-          Reviews from other supporters will appear here once submitted.
-        </p>
+        <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">
+          Supporter Reviews ({reviews.length})
+        </h3>
+
+        {fetchingReviews ? (
+          <div className="py-6 text-center text-xs text-slate-400 animate-pulse">
+            Loading reviews...
+          </div>
+        ) : reviews.length === 0 ? (
+          <p className="text-xs text-slate-400 dark:text-slate-500 italic">
+            No reviews yet for this campaign. Be the first supporter to leave a review!
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {reviews.map((rev) => (
+              <div
+                key={rev._id}
+                className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {rev.userImage ? (
+                      <img src={rev.userImage} alt={rev.userName} className="w-8 h-8 rounded-full object-cover" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                        {(rev.userName || "?")[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">{rev.userName}</p>
+                      <p className="text-[10px] text-slate-400">{new Date(rev.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+
+                  <StarRating value={rev.rating} readonly />
+                </div>
+                <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                  {rev.comment}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -190,8 +282,10 @@ const REPORT_REASONS = [
 ];
 
 function ReportSection({ campaign, session }) {
+  const router = useRouter();
   const [reason, setReason] = useState("");
   const [details, setDetails] = useState("");
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const user = session?.user;
@@ -199,6 +293,44 @@ function ReportSection({ campaign, session }) {
   const isOwner = user?.id && campaign?.userId && user.id === campaign.userId;
   const isSupporter = role === "Supporter";
   const isCreatorNotOwner = role === "Creator" && !isOwner;
+
+  const handleSubmitReport = async () => {
+    if (!reason || loading) return;
+    setLoading(true);
+    try {
+      const payload = {
+        userId: user?.id || user?._id || null,
+        userName: user?.name || "Anonymous Supporter",
+        userEmail: user?.email || "",
+        userImage: user?.image || "",
+        campaignId: campaign?._id || "",
+        campaignName: campaign?.campaign_title || "",
+        campaignImage: campaign?.campaign_image_url || "",
+        creatorId: campaign?.userId || null,
+        creatorName: campaign?.creatorName || "",
+        creatorEmail: campaign?.creatorEmail || "",
+        creatorImage: campaign?.creatorProfileImg || "",
+        reason,
+        details,
+      };
+
+      const res = await createReport(payload);
+      if (res?.success) {
+        toast.success("Report submitted successfully!");
+        setSubmitted(true);
+        setTimeout(() => {
+          router.push("/dashboard/supporter");
+        }, 1200);
+      } else {
+        toast.error(res?.message || "Failed to submit report");
+      }
+    } catch (err) {
+      console.error("Submit report error:", err);
+      toast.error("An error occurred while submitting the report.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="mt-10">
@@ -267,11 +399,11 @@ function ReportSection({ campaign, session }) {
           </div>
 
           <button
-            onClick={() => reason && setSubmitted(true)}
-            disabled={!reason}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition"
+            onClick={handleSubmitReport}
+            disabled={!reason || loading}
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-400 hover:to-rose-400 text-white text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center gap-2"
           >
-            <FiFlag className="inline mr-1.5 mb-0.5" />
+            {loading ? <FiLoader className="animate-spin w-4 h-4" /> : <FiFlag className="w-4 h-4" />}
             Submit Report
           </button>
         </motion.div>
@@ -286,7 +418,7 @@ function ReportSection({ campaign, session }) {
           <FiCheckCircle className="w-5 h-5 shrink-0" />
           <div>
             <p className="font-semibold">Report submitted!</p>
-            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">Our moderation team will review it shortly.</p>
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">Our moderation team will review it shortly. Redirecting...</p>
           </div>
         </motion.div>
       )}

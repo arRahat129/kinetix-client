@@ -16,6 +16,7 @@ import {
   FiDollarSign,
   FiFileText,
   FiPieChart,
+  FiStar,
 } from "react-icons/fi";
 
 export default function DashboardLinks({ onNavClick }) {
@@ -44,6 +45,7 @@ export default function DashboardLinks({ onNavClick }) {
       { href: "/dashboard/admin/manage-campaigns", label: "Manage Campaigns", icon: FiFolderPlus },
       { href: "/dashboard/admin/withdrawal-requests", label: "Withdrawal Requests", icon: FiDollarSign },
       { href: "/dashboard/admin/reports", label: "Reports", icon: FiPieChart },
+      { href: "/dashboard/admin/reviews", label: "Manage Reviews", icon: FiStar },
     ],
   };
 

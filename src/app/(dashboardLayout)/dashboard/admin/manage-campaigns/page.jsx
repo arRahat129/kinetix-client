@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { getAllCampaignsAdmin } from '@/lib/api/campaign';
 import { updateCampaignStatus, deleteCampaign } from '@/lib/actions/campaign';
 import { AdminCampaignTable } from '@/components/dashboard/admin/AdminCampaignTable';
@@ -12,6 +12,9 @@ import toast from 'react-hot-toast';
 
 export default function ManageCampaignsPage() {
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const highlightId = searchParams.get('highlight');
+
     const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,6 +63,20 @@ export default function ManageCampaignsPage() {
     useEffect(() => {
         fetchCampaigns();
     }, [fetchCampaigns]);
+
+    useEffect(() => {
+        if (highlightId && !loading && campaigns.length > 0) {
+            const timer = setTimeout(() => {
+                const rowEl = document.getElementById(`campaign-row-${highlightId}`);
+                const cardEl = document.getElementById(`campaign-card-${highlightId}`);
+                const targetEl = rowEl || cardEl;
+                if (targetEl) {
+                    targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+            return () => clearTimeout(timer);
+        }
+    }, [highlightId, loading, campaigns]);
 
     const handleOpenModal = (mode, campaign) => {
         setModalState({
@@ -202,6 +219,7 @@ export default function ManageCampaignsPage() {
                     {/* Desktop Table View (lg screen) */}
                     <AdminCampaignTable
                         campaigns={campaigns}
+                        highlightId={highlightId}
                         onView={(item) => handleOpenModal('view', item)}
                         onApprove={(item) => handleOpenModal('status', { ...item, _targetStatus: 'approved' })}
                         onReject={(item) => handleOpenModal('status', { ...item, _targetStatus: 'rejected' })}
@@ -211,6 +229,7 @@ export default function ManageCampaignsPage() {
                     {/* Mobile & Tablet Responsive Grid View (sm & md screens) */}
                     <AdminCampaignCards
                         campaigns={campaigns}
+                        highlightId={highlightId}
                         onView={(item) => handleOpenModal('view', item)}
                         onApprove={(item) => handleOpenModal('status', { ...item, _targetStatus: 'approved' })}
                         onReject={(item) => handleOpenModal('status', { ...item, _targetStatus: 'rejected' })}
