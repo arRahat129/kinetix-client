@@ -15,16 +15,16 @@ export default function AuthLayout({ children }) {
 
                     <div className="flex items-center gap-2">
                         <ThemeToggle />
-                        <Link 
-                            href="/explore" 
+                        <Link
+                            href="/campaigns"
                             className="text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 flex items-center gap-1 transition-colors px-2 py-1.5 rounded-lg"
                         >
                             <FaCompass />
                             <span className="hidden sm:inline">Explore</span>
                         </Link>
-                        <a 
-                            href="https://github.com" 
-                            target="_blank" 
+                        <a
+                            href="https://github.com/arRahat129"
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 dark:hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-500/30 text-xs font-semibold px-3 py-1.5 rounded-xl flex items-center gap-1.5 transition-all"
                         >

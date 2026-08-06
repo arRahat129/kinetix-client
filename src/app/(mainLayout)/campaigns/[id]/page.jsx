@@ -614,7 +614,7 @@ export default function CampaignDetailPage() {
               <button
                 onClick={() => {
                   if (!user) {
-                    window.location.href = "/login";
+                    window.location.href = "/auth/signin";
                     return;
                   }
                   setSupportModalOpen(true);

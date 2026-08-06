@@ -36,10 +36,9 @@ export default function Footer() {
 
             {/* Social Icons */}
             <div className="flex gap-3 mt-6">
-              <SocialIcon href="https://linkedin.com" icon={<FiLinkedin size={18} />} />
-              <SocialIcon href="https://github.com" icon={<FiGithub size={18} />} />
-              <SocialIcon href="https://facebook.com" icon={<FiFacebook size={18} />} />
-              <SocialIcon href="https://twitter.com" icon={<FiTwitter size={18} />} />
+              <SocialIcon href="https://www.linkedin.com/in/mohammad-ashikur-rahman-rahat/" icon={<FiLinkedin size={18} />} />
+              <SocialIcon href="https://github.com/arRahat129" icon={<FiGithub size={18} />} />
+              <SocialIcon href="https://x.com/A_R_Rahat" icon={<FiTwitter size={18} />} />
             </div>
           </div>
 
@@ -51,8 +50,8 @@ export default function Footer() {
             <div className="flex flex-col gap-3">
               <FooterLink href="/" label="Home" />
               <FooterLink href="/campaigns" label="Explore Campaigns" />
-              <FooterLink href="/register" label="Start a Campaign" />
-              <FooterLink href="/login" label="Sign In" />
+              <FooterLink href="/auth/signup" label="Start a Campaign" />
+              <FooterLink href="/auth/signin" label="Sign In" />
             </div>
           </div>
 
@@ -62,7 +61,7 @@ export default function Footer() {
               For Creators
             </h4>
             <div className="flex flex-col gap-3">
-              <FooterLink href="/register" label="Launch Your Campaign" />
+              <FooterLink href="/auth/signup" label="Launch Your Campaign" />
               <FooterLink href="#how-it-works" label="How It Works" />
               <FooterLink href="#categories" label="Campaign Categories" />
               <FooterLink href="#" label="Creator Resources" />
@@ -77,7 +76,7 @@ export default function Footer() {
             <div className="flex flex-col gap-3.5">
               <div className="flex items-center gap-2.5 text-slate-600 dark:text-slate-300 text-sm">
                 <FiMail size={16} className="text-blue-500" />
-                <span>support@kinetix.com</span>
+                <span><Link href="mailto:[rahashik129@gmail.com]">rahashik129@gmail.com</Link></span>
               </div>
               <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">
                 Have a question or need help? We are here for you 24/7.
