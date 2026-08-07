@@ -17,8 +17,13 @@ export default function DashboardSidebar() {
   const handleLogout = async () => {
     try {
       localStorage.removeItem("access-token");
-      await signOut();
-      router.push("/");
+      await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/auth/signin");
+          }
+        }
+      });
     } catch (error) {
       console.error("Logout failed:", error);
     }
