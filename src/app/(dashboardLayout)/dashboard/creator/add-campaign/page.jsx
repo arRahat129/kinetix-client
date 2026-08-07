@@ -21,6 +21,7 @@ import {
 } from 'react-icons/fi';
 import { Button, Card, Input, TextArea, Select, Label, ListBox } from '@heroui/react';
 import { useSession } from '@/lib/auth-client';
+import toast from 'react-hot-toast';
 
 const CATEGORIES = [
     { key: 'technology', label: 'Technology' },
@@ -194,13 +195,15 @@ export default function AddCampaignPage() {
 
             if (result?.insertedId || result?.acknowledged) {
                 setSuccessMsg('Campaign created successfully! Redirecting to dashboard...');
+                toast.success('Campaign Added Successfully!');
                 setTimeout(() => {
-                    router.push('/dashboard');
+                    router.push('/dashboard/creator/my-campaigns');
                 }, 1500);
             } else {
                 throw new Error(result?.message || 'Failed to create campaign.');
             }
         } catch (err) {
+            toast.error(`Something went wrong || ${err.message}`)
             setErrorMsg(err.message || 'Something went wrong. Please try again.');
         } finally {
             setLoading(false);

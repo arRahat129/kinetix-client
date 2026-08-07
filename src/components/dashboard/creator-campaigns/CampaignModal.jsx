@@ -12,7 +12,7 @@ export const CampaignModal = ({ isOpen, mode, campaign, onClose, onSubmit, isSub
             setFormData({
                 campaign_title: campaign.campaign_title || '',
                 campaign_story: campaign.campaign_story || '',
-                category: campaign.category || '',
+                category: campaign.category ? String(campaign.category).toLowerCase() : '',
                 funding_goal: campaign.funding_goal || '',
                 minimum_Contribution: campaign.minimum_Contribution || '',
                 deadline: campaign.deadline ? String(campaign.deadline).split('T')[0] : '',
@@ -41,6 +41,9 @@ export const CampaignModal = ({ isOpen, mode, campaign, onClose, onSubmit, isSub
 
                 if (key === 'deadline' && origValue) {
                     origValue = String(origValue).split('T')[0];
+                }
+                if (key === 'category' && origValue) {
+                    origValue = String(origValue).toLowerCase();
                 }
                 
                 // For number fields, compare as numbers if possible
@@ -168,12 +171,12 @@ export const CampaignModal = ({ isOpen, mode, campaign, onClose, onSubmit, isSub
                                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-amber-500 outline-none transition-all text-sm"
                                 >
                                     <option value="">Select Category</option>
-                                    <option value="Technology">Technology</option>
-                                    <option value="Art">Art</option>
-                                    <option value="Community">Community</option>
-                                    <option value="Health">Health</option>
-                                    <option value="Education">Education</option>
-                                    <option value="Environment">Environment</option>
+                                    <option value="technology">Technology</option>
+                                    <option value="art">Art</option>
+                                    <option value="community">Community</option>
+                                    <option value="health">Health</option>
+                                    <option value="education">Education</option>
+                                    <option value="environment">Environment</option>
                                 </select>
                             </div>
                             <div>

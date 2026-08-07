@@ -9,6 +9,7 @@ import { CampaignCards } from '@/components/dashboard/creator-campaigns/Campaign
 import { CampaignModal } from '@/components/dashboard/creator-campaigns/CampaignModal';
 import { FiSearch, FiFilter, FiRefreshCw, FiPlusCircle, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import Link from 'next/link';
+import toast from 'react-hot-toast';
 
 export default function MyCampaignsPage() {
     const { data: session } = useSession();
@@ -97,10 +98,12 @@ export default function MyCampaignsPage() {
             const result = await updateCampaign(id, updatedData);
             if (result && (result.acknowledged || result.modifiedCount > 0)) {
                 handleCloseModal();
+                toast.success('Campaign Updated Successfully!');
                 fetchCampaigns();
             }
         } catch (error) {
             console.error('Error updating campaign:', error);
+            toast.error(`Something went wrong || ${error.message}`)
         } finally {
             setIsSubmitting(false);
         }
@@ -112,6 +115,7 @@ export default function MyCampaignsPage() {
             const result = await deleteCampaign(id);
             if (result && result.success) {
                 handleCloseModal();
+                toast.success('Campaign Deleted Successfully!');
                 fetchCampaigns();
             }
         } catch (error) {
@@ -162,7 +166,7 @@ export default function MyCampaignsPage() {
                     <div className="flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 mr-2 hidden sm:flex">
                         <FiFilter className="w-4 h-4" /> Filters
                     </div>
-                    
+
                     <div className="flex items-center gap-3 w-full sm:w-auto">
                         <select
                             value={status}
