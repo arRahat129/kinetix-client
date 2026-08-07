@@ -46,3 +46,11 @@ export const getAllCampaignsAdmin = async ({ search = '', status = '', page = 1,
 export const getPendingCampaigns = async ({ search = '', page = 1, limit = 50 } = {}) => {
     return await getAllCampaignsAdmin({ search, status: 'pending', page, limit });
 };
+
+export const getTopFundedCampaigns = async (limit = 6) => {
+    return await serverFetch(`/api/campaigns/top-funded?limit=${limit}`);
+};
+
+export const getPlatformImpactStats = async () => {
+    return await serverFetch('/api/platform/impact');
+};

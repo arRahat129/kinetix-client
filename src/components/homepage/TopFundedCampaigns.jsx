@@ -4,62 +4,30 @@ import { motion } from "framer-motion";
 import { FiTrendingUp, FiArrowRight } from "react-icons/fi";
 import Link from "next/link";
 
-const campaigns = [
-  {
-    id: 1,
-    title: "Solar-Powered Water Purifier for Rural Communities",
-    image:
-      "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=400&h=250&fit=crop",
-    raised: 12500,
-    goal: 15000,
-    category: "Technology",
-  },
-  {
-    id: 2,
-    title: "Independent Documentary: Voices of the Ocean",
-    image:
-      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=400&h=250&fit=crop",
-    raised: 8900,
-    goal: 10000,
-    category: "Art",
-  },
-  {
-    id: 3,
-    title: "Community Garden Initiative — Growing Together",
-    image:
-      "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=250&fit=crop",
-    raised: 7200,
-    goal: 8000,
-    category: "Community",
-  },
-  {
-    id: 4,
-    title: "AI-Powered Mental Health Companion App",
-    image:
-      "https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=250&fit=crop",
-    raised: 18300,
-    goal: 20000,
-    category: "Health",
-  },
-  {
-    id: 5,
-    title: "Portable Wind Turbine for Off-Grid Adventures",
-    image:
-      "https://images.unsplash.com/photo-1532601224476-15c79f2f7a51?w=400&h=250&fit=crop",
-    raised: 5600,
-    goal: 12000,
-    category: "Technology",
-  },
-  {
-    id: 6,
-    title: "Street Art Festival — Colors of Unity",
-    image:
-      "https://images.unsplash.com/photo-1499781350541-7783f6c6a0c8?w=400&h=250&fit=crop",
-    raised: 4100,
-    goal: 5000,
-    category: "Art",
-  },
-];
+import { useState, useEffect } from "react";
+import { getTopFundedCampaigns } from "@/lib/api/campaign";
+
+function CampaignCardSkeleton() {
+  return (
+    <div className="h-[380px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 animate-pulse">
+      <div className="h-48 bg-slate-200 dark:bg-slate-800" />
+      <div className="p-6 flex flex-col justify-between flex-1">
+        <div>
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-4/5 mb-3" />
+          <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-3/5 mb-6" />
+          <div className="h-2 bg-slate-200 dark:bg-slate-800 rounded-full mb-4 w-full" />
+        </div>
+        <div className="flex justify-between items-center mt-4">
+          <div>
+            <div className="h-4 bg-slate-200 dark:bg-slate-800 rounded w-20 mb-1" />
+            <div className="h-3 bg-slate-200 dark:bg-slate-800 rounded w-16" />
+          </div>
+          <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded-full w-12" />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const containerVariants = {
   hidden: {},
@@ -78,6 +46,25 @@ const cardVariants = {
 };
 
 export default function TopFundedCampaigns() {
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchTopCampaigns() {
+      try {
+        const res = await getTopFundedCampaigns(6);
+        if (res?.success && res?.data) {
+          setCampaigns(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch top campaigns", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchTopCampaigns();
+  }, []);
+
   return (
     <section className="relative py-24 bg-white dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 relative">
@@ -113,11 +100,17 @@ export default function TopFundedCampaigns() {
           viewport={{ once: true, margin: "-50px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {campaigns.map((campaign) => (
-            <motion.div key={campaign.id} variants={cardVariants}>
-              <CampaignCard campaign={campaign} />
-            </motion.div>
-          ))}
+          {loading
+            ? Array.from({ length: 6 }).map((_, idx) => (
+                <motion.div key={idx} variants={cardVariants}>
+                  <CampaignCardSkeleton />
+                </motion.div>
+              ))
+            : campaigns.map((campaign) => (
+                <motion.div key={campaign._id} variants={cardVariants}>
+                  <CampaignCard campaign={campaign} />
+                </motion.div>
+              ))}
         </motion.div>
 
         {/* View All Button */}
@@ -142,60 +135,64 @@ export default function TopFundedCampaigns() {
 }
 
 function CampaignCard({ campaign }) {
-  const progress = Math.round((campaign.raised / campaign.goal) * 100);
+  const progress = campaign.progress !== undefined ? campaign.progress : Math.round(((campaign.raised || 0) / (campaign.goal || 1)) * 100);
+  const image = campaign.campaign_image_url || campaign.image;
+  const title = campaign.campaign_title || campaign.title;
 
   return (
-    <div className="h-full rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col">
-      {/* Image */}
-      <div className="relative overflow-hidden h-48 w-full">
-        <img
-          src={campaign.image}
-          alt={campaign.title}
-          className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
-        />
-        {/* Category Badge */}
-        <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900 text-blue-400 text-xs font-semibold border border-slate-700">
-          {campaign.category}
-        </span>
-      </div>
-
-      {/* Content */}
-      <div className="p-6 flex-1 flex flex-col justify-between">
-        <div>
-          <h3 className="text-slate-900 dark:text-white font-bold text-base mb-4 line-clamp-2 leading-snug">
-            {campaign.title}
-          </h3>
-
-          {/* Progress Bar */}
-          <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mb-3">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-1000"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+    <Link href={`/campaigns/${campaign._id}`} className="block h-full rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+      <div className="flex flex-col h-full">
+        {/* Image */}
+        <div className="relative overflow-hidden h-48 w-full">
+          <img
+            src={image}
+            alt={title}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+          {/* Category Badge */}
+          <span className="absolute top-3 right-3 px-3 py-1 rounded-full bg-slate-900 text-blue-400 text-xs font-semibold border border-slate-700">
+            {campaign.category}
+          </span>
         </div>
 
-        {/* Stats */}
-        <div className="flex items-center justify-between mt-2">
+        {/* Content */}
+        <div className="p-6 flex-1 flex flex-col justify-between">
           <div>
-            <p className="text-base font-extrabold text-blue-600 dark:text-blue-400">
-              {campaign.raised.toLocaleString()} credits
-            </p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              of {campaign.goal.toLocaleString()} goal
-            </p>
+            <h3 className="text-slate-900 dark:text-white font-bold text-base mb-4 line-clamp-2 leading-snug">
+              {title}
+            </h3>
+
+            {/* Progress Bar */}
+            <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden mb-3">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-1000"
+                style={{ width: `${Math.min(100, progress)}%` }}
+              />
+            </div>
           </div>
-          <div
-            className={`px-3 py-1 rounded-full text-xs font-bold ${
-              progress >= 75
-                ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400"
-                : "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
-            }`}
-          >
-            {progress}%
+
+          {/* Stats */}
+          <div className="flex items-center justify-between mt-2">
+            <div>
+              <p className="text-base font-extrabold text-blue-600 dark:text-blue-400">
+                {(campaign.raised || 0).toLocaleString()} credits
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                of {(campaign.goal || 1).toLocaleString()} goal
+              </p>
+            </div>
+            <div
+              className={`px-3 py-1 rounded-full text-xs font-bold ${
+                progress >= 75
+                  ? "bg-emerald-100 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400"
+                  : "bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400"
+              }`}
+            >
+              {progress}%
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

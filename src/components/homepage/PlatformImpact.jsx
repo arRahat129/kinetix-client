@@ -9,47 +9,9 @@ import {
   FiTarget,
   FiTrendingUp,
 } from "react-icons/fi";
+import { getPlatformImpactStats } from "@/lib/api/campaign";
 
-const stats = [
-  {
-    icon: <FiTarget size={28} />,
-    value: 2840,
-    suffix: "+",
-    label: "Campaigns Funded",
-    colorClass: "text-blue-500 dark:text-blue-400",
-    bgClass: "bg-blue-50 dark:bg-blue-900",
-    borderClass: "border-blue-200 dark:border-blue-800",
-  },
-  {
-    icon: <FiDollarSign size={28} />,
-    value: 1250000,
-    suffix: "",
-    prefix: "",
-    label: "Credits Raised",
-    colorClass: "text-cyan-500 dark:text-cyan-400",
-    bgClass: "bg-cyan-50 dark:bg-cyan-900",
-    borderClass: "border-cyan-200 dark:border-cyan-800",
-    format: true,
-  },
-  {
-    icon: <FiUsers size={28} />,
-    value: 45000,
-    suffix: "+",
-    label: "Active Supporters",
-    colorClass: "text-purple-500 dark:text-purple-400",
-    bgClass: "bg-purple-50 dark:bg-purple-900",
-    borderClass: "border-purple-200 dark:border-purple-800",
-  },
-  {
-    icon: <FiTrendingUp size={28} />,
-    value: 94,
-    suffix: "%",
-    label: "Success Rate",
-    colorClass: "text-emerald-500 dark:text-emerald-400",
-    bgClass: "bg-emerald-50 dark:bg-emerald-900",
-    borderClass: "border-emerald-200 dark:border-emerald-800",
-  },
-];
+// Moved stats inside component to make it reactive
 
 function useCountUp(target, duration = 2000, shouldStart = false) {
   const [count, setCount] = useState(0);
@@ -112,7 +74,68 @@ function StatCard({ stat, isVisible }) {
 
 export default function PlatformImpact() {
   const [isVisible, setIsVisible] = useState(false);
+  const [impactData, setImpactData] = useState({
+    campaignsFunded: 2840,
+    creditsRaised: 1250000,
+    activeSupporters: 45000,
+    successRate: 94
+  });
   const sectionRef = useRef(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await getPlatformImpactStats();
+        if (res?.success && res?.data) {
+          setImpactData(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch platform impact stats", err);
+      }
+    }
+    fetchData();
+  }, []);
+
+  const stats = [
+    {
+      icon: <FiTarget size={28} />,
+      value: impactData.campaignsFunded,
+      suffix: "+",
+      label: "Campaigns Funded",
+      colorClass: "text-blue-500 dark:text-blue-400",
+      bgClass: "bg-blue-50 dark:bg-blue-900",
+      borderClass: "border-blue-200 dark:border-blue-800",
+    },
+    {
+      icon: <FiDollarSign size={28} />,
+      value: impactData.creditsRaised,
+      suffix: "",
+      prefix: "",
+      label: "Credits Raised",
+      colorClass: "text-cyan-500 dark:text-cyan-400",
+      bgClass: "bg-cyan-50 dark:bg-cyan-900",
+      borderClass: "border-cyan-200 dark:border-cyan-800",
+      format: true,
+    },
+    {
+      icon: <FiUsers size={28} />,
+      value: impactData.activeSupporters,
+      suffix: "+",
+      label: "Active Supporters",
+      colorClass: "text-purple-500 dark:text-purple-400",
+      bgClass: "bg-purple-50 dark:bg-purple-900",
+      borderClass: "border-purple-200 dark:border-purple-800",
+    },
+    {
+      icon: <FiTrendingUp size={28} />,
+      value: impactData.successRate,
+      suffix: "%",
+      label: "Success Rate",
+      colorClass: "text-emerald-500 dark:text-emerald-400",
+      bgClass: "bg-emerald-50 dark:bg-emerald-900",
+      borderClass: "border-emerald-200 dark:border-emerald-800",
+    },
+  ];
 
   useEffect(() => {
     const observer = new IntersectionObserver(

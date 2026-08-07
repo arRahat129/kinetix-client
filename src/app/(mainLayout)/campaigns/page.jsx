@@ -10,6 +10,8 @@ import { HiOutlineSparkles, HiOutlineRocketLaunch } from "react-icons/hi2";
 import { getApprovedCampaigns } from "@/lib/api/campaign";
 import CampaignCard from "@/components/campaigns/CampaignCard";
 import { SlidersHorizontal } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const CATEGORIES = [
     "All", "Technology", "Art", "Community", "Health",
@@ -41,7 +43,7 @@ function CampaignCardSkeleton() {
     );
 }
 
-export default function ExploreCampaignsPage() {
+function ExploreCampaignsContent() {
     const [campaigns, setCampaigns] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
@@ -55,6 +57,24 @@ export default function ExploreCampaignsPage() {
     const [minGoal, setMinGoal] = useState("");
     const [maxGoal, setMaxGoal] = useState("");
     const searchRef = useRef(null);
+
+    const searchParams = useSearchParams();
+    const urlCategory = searchParams.get("category");
+    const urlSearch = searchParams.get("search");
+
+    useEffect(() => {
+        if (urlCategory) {
+            const matched = CATEGORIES.find(c => c.toLowerCase() === urlCategory.toLowerCase());
+            if (matched) {
+                setCategory(matched);
+            } else {
+                setCategory(urlCategory);
+            }
+        }
+        if (urlSearch) {
+            setSearch(urlSearch);
+        }
+    }, [urlCategory, urlSearch]);
 
     // Debounce search
     useEffect(() => {
@@ -370,5 +390,17 @@ export default function ExploreCampaignsPage() {
                 )}
             </div>
         </main>
+    );
+}
+
+export default function ExploreCampaignsPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="w-12 h-12 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin" />
+            </div>
+        }>
+            <ExploreCampaignsContent />
+        </Suspense>
     );
 }

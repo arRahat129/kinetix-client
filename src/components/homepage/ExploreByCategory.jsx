@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { HiOutlineSquares2X2 } from "react-icons/hi2";
 import { FiCpu, FiFeather, FiUsers, FiHeart } from "react-icons/fi";
 
@@ -104,8 +105,9 @@ export default function ExploreByCategory() {
         >
           {categories.map((cat, index) => (
             <motion.div key={index} variants={cardVariants}>
-              <div
-                className={`h-full relative overflow-hidden rounded-2xl p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm ${cat.borderHover} transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
+              <Link
+                href={`/campaigns?category=${encodeURIComponent(cat.name)}`}
+                className={`block h-full relative overflow-hidden rounded-2xl p-8 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm ${cat.borderHover} transition-all duration-300 hover:-translate-y-1 cursor-pointer`}
               >
                 {/* Icon */}
                 <div
@@ -128,7 +130,7 @@ export default function ExploreByCategory() {
                 <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                   {cat.count} active campaigns
                 </span>
-              </div>
+              </Link>
             </motion.div>
           ))}
         </motion.div>

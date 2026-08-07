@@ -33,6 +33,13 @@ export async function POST(req) {
 
             const backendData = await backendRes.json();
 
+            if (!backendRes.ok || !backendData.success) {
+                return NextResponse.json({
+                    success: false,
+                    error: backendData.message || backendData.error || 'Failed to update credits in database'
+                }, { status: backendRes.status || 500 });
+            }
+
             return NextResponse.json({
                 success: true,
                 email: userEmail,
