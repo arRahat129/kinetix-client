@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
@@ -15,7 +15,7 @@ const PACKAGES = [
         credits: 100,
         price: 10,
         badge: 'Starter',
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_100 || '', // Place catalog Price ID here if available
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_100 || '',
         popular: false,
         features: ['100 Platform Credits', 'Instant Credit Delivery', 'Supports Any Campaign', 'Standard Support']
     },
@@ -24,7 +24,7 @@ const PACKAGES = [
         credits: 300,
         price: 25,
         badge: 'Most Popular',
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_300 || '', // Place catalog Price ID here if available
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_300 || '',
         popular: true,
         features: ['300 Platform Credits', '20 Bonus Credits Value', 'Instant Credit Delivery', 'Priority Campaign Perks']
     },
@@ -33,7 +33,7 @@ const PACKAGES = [
         credits: 800,
         price: 60,
         badge: 'Pro Supporter',
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_800 || '', // Place catalog Price ID here if available
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_800 || '',
         popular: false,
         features: ['800 Platform Credits', 'Save $20 vs Standard', 'Instant Credit Delivery', 'Exclusive Supporter Badge']
     },
@@ -42,13 +42,13 @@ const PACKAGES = [
         credits: 1500,
         price: 110,
         badge: 'Ultimate Pack',
-        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_1500 || '', // Place catalog Price ID here if available
+        priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_1500 || '',
         popular: false,
         features: ['1500 Platform Credits', 'Maximum Bonus Savings', 'Instant Credit Delivery', 'VIP Platform Status']
     },
 ];
 
-export default function PurchaseCreditPage() {
+function PurchaseCreditContent() {
     const { data: session } = useSession();
     const user = session?.user;
     const searchParams = useSearchParams();
@@ -199,5 +199,19 @@ export default function PurchaseCreditPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function PurchaseCreditPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-screen flex items-center justify-center p-4">
+                    <div className="w-12 h-12 rounded-full border-4 border-primary-500/30 border-t-primary-500 animate-spin" />
+                </div>
+            }
+        >
+            <PurchaseCreditContent />
+        </Suspense>
     );
 }

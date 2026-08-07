@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FiCheckCircle, FiArrowRight, FiZap, FiAlertCircle } from 'react-icons/fi';
@@ -8,7 +8,7 @@ import { Button, Card } from '@heroui/react';
 import toast from 'react-hot-toast';
 import { HiShieldCheck } from 'react-icons/hi2';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('session_id');
     const router = useRouter();
@@ -190,5 +190,19 @@ export default function PaymentSuccessPage() {
                 </Card>
             </motion.div>
         </div>
+    );
+}
+
+export default function PaymentSuccessPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-[80vh] flex items-center justify-center p-4">
+                    <div className="w-16 h-16 rounded-full border-4 border-emerald-500/30 border-t-emerald-500 animate-spin" />
+                </div>
+            }
+        >
+            <PaymentSuccessContent />
+        </Suspense>
     );
 }

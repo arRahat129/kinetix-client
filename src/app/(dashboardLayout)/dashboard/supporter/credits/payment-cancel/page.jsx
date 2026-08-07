@@ -1,11 +1,13 @@
 "use client";
 
+import { Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { FiXCircle, FiRefreshCw, FiGrid } from 'react-icons/fi';
 import { Button, Card } from '@heroui/react';
 
-export default function PaymentCancelPage() {
+// 1. Move the hook call and UI into an internal component
+function PaymentCancelContent() {
     const searchParams = useSearchParams();
     const redirectTo = searchParams.get('redirectTo') || '/dashboard';
     const router = useRouter();
@@ -68,5 +70,20 @@ export default function PaymentCancelPage() {
                 </Card>
             </motion.div>
         </div>
+    );
+}
+
+// 2. Export the default page component wrapped in a <Suspense> boundary
+export default function PaymentCancelPage() {
+    return (
+        <Suspense
+            fallback={
+                <div className="min-h-[80vh] flex items-center justify-center p-4">
+                    <div className="w-8 h-8 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
+                </div>
+            }
+        >
+            <PaymentCancelContent />
+        </Suspense>
     );
 }
