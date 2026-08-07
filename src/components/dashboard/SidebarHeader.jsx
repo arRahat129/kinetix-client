@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useSession } from "@/lib/auth-client";
 import { FaCoins } from "react-icons/fa";
-import { FiBell } from "react-icons/fi";
+import NotificationPopover from "@/components/notifications/NotificationPopover";
 
 export default function SidebarHeader() {
   const { data: session } = useSession();
@@ -34,15 +34,8 @@ export default function SidebarHeader() {
 
         {/* Right tools: Notification & Avatar */}
         <div className="flex items-center gap-2">
-          {/* Notification Icon */}
-          <button
-            type="button"
-            className="relative p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors cursor-pointer"
-            aria-label="Notifications"
-          >
-            <FiBell size={18} />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white dark:ring-slate-900" />
-          </button>
+          {/* Notification Icon Component */}
+          <NotificationPopover />
 
           {/* User Image / Avatar Fallback */}
           <div className="relative w-9 h-9 rounded-xl shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-sm shadow-xs">

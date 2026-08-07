@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { FiMenu, FiX, FiGithub, FiLogOut, FiLayout, FiChevronDown } from "react-icons/fi";
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
 import ThemeToggle from "./ThemeToggle";
+import NotificationPopover from "./notifications/NotificationPopover";
 import { signOut, useSession } from "@/lib/auth-client";
 import { FaCoins } from "react-icons/fa";
 
@@ -123,6 +124,7 @@ export default function Navbar() {
             <div className="mx-1 h-5 w-[1px] bg-slate-200 dark:bg-slate-800" />
 
             <ThemeToggle />
+            {user && <NotificationPopover />}
 
             {/* Authenticated User Menu or Guest Auth Buttons */}
             {user ? (

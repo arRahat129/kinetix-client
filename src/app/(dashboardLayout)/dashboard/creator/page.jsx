@@ -15,6 +15,7 @@ import { getCreatorStats, getContributions } from "@/lib/api/contribution";
 import { approveContribution, rejectContribution } from "@/lib/actions/contribution";
 import ConfirmModal from "@/components/modals/ConfirmModal";
 import ContributionDetailModal from "@/components/modals/ContributionDetailModal";
+import { useRouter } from "next/navigation";
 
 const StatusBadge = ({ status }) => {
   const styles = {
@@ -32,6 +33,7 @@ const StatusBadge = ({ status }) => {
 export default function CreatorDashboardPage() {
   const { data: session } = useSession();
   const user = session?.user;
+  const router = useRouter();
 
   const [stats, setStats] = useState({ totalCampaigns: 0, activeCampaigns: 0, totalAmountRaised: 0 });
   const [statsLoading, setStatsLoading] = useState(true);
@@ -83,6 +85,7 @@ export default function CreatorDashboardPage() {
         toast.success("Contribution approved! Raised amount updated.");
         fetchContributions();
         fetchStats();
+        router.refresh();
       } else {
         toast.error(res.message || "Approval failed");
       }
@@ -100,6 +103,7 @@ export default function CreatorDashboardPage() {
       if (res.success) {
         toast.success("Contribution rejected. Credits refunded to supporter.");
         fetchContributions();
+        router.refresh();
       } else {
         toast.error(res.message || "Rejection failed");
       }

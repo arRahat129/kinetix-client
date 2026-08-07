@@ -6,6 +6,7 @@ import { FiX, FiCreditCard, FiMessageSquare, FiAlertCircle } from "react-icons/f
 import { HiOutlineRocketLaunch } from "react-icons/hi2";
 import Link from "next/link";
 import { createContribution } from "@/lib/actions/contribution";
+import { useRouter } from "next/navigation";
 
 export default function SupportCampaignModal({ isOpen, onClose, campaign, session, onSuccess }) {
   const [amount, setAmount] = useState("");
@@ -13,6 +14,7 @@ export default function SupportCampaignModal({ isOpen, onClose, campaign, sessio
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const router = useRouter();
   const successRef = useRef(false);
 
   if (!isOpen || !campaign) return null;
@@ -44,6 +46,7 @@ export default function SupportCampaignModal({ isOpen, onClose, campaign, sessio
       if (result.success) {
         setSuccess(true);
         successRef.current = true;
+        router.push(`/campaigns/${campaign._id}`);
       } else {
         setError(result.message || "Failed to submit contribution");
       }
